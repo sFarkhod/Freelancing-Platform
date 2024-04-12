@@ -3,7 +3,6 @@
 import os
 import sys
 
-# test sjdnskhd
 
 def main():
     """Run administrative tasks."""
