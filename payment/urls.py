@@ -26,9 +26,9 @@ urlpatterns = [
     path('subscriptions/update/<int:pk>', SubscriptionUpdateAPIView.as_view()),
     path('subscriptions/delete/<int:pk>/', SubscriptionDeleteAPIView.as_view()),
     # withdraw
-    path('wthdraw/api/', WithdrawListAPIView.as_view()),
-    path('wthdraw/detail/<int:pk>/', WithdrawDetailAPIView.as_view()),
-    path('wthdraw/create/', WithdrawCreateAPIView.as_view()),
-    path('wthdraw/update/<int:pk>/', WithdrawUpdateAPIView.as_view()),
-    path('wthdraw/delete/<int:pk>/', WithdrawDeleteAPIView.as_view()),
+    path('withdraw/api/', WithdrawListAPIView.as_view()),
+    path('withdraw/detail/<int:pk>/', WithdrawDetailAPIView.as_view()),
+    path('withdraw/create/', WithdrawCreateAPIView.as_view()),
+    path('withdraw/update/<int:pk>/', WithdrawUpdateAPIView.as_view()),
+    path('withdraw/delete/<int:pk>/', WithdrawDeleteAPIView.as_view()),
 ]

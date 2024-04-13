@@ -101,13 +101,13 @@ class SubscriptionDetailSerializer(serializers.ModelSerializer):
 class CreateSubscriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscription
-        fields = ['type', 'start_date', 'end_date', 'freelancer']
+        fields = ['subscription_type', 'start_date', 'end_date', 'freelancer']
 
 
 class UpdateSubscriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscription
-        fields = ['type', 'start_date', 'end_date', 'freelancer']
+        fields = ['subscription_type', 'start_date', 'end_date', 'freelancer']
 
 
 class DeleteSubscriptionSerializer(serializers.ModelSerializer):
