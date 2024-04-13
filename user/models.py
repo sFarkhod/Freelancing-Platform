@@ -1,14 +1,23 @@
 from django.db import models
-from utils.models import BaseModel
 from datetime import datetime, timedelta
 from django.core.validators import FileExtensionValidator
 from django.contrib.auth.models import User
-
+import uuid
 
 VIA_EMAIL, VIA_PHONE = ('via_email', 'via_phone')
     
 PHONE_EXPIRE = 2
 EMAIL_EXPIRE = 5
+
+
+class BaseModel(models.Model):
+    id = models.UUIDField(unique=True, primary_key=True, default=uuid.uuid4, editable=False)
+    created_time = models.DateTimeField(auto_now_add=True)
+    updated_time = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_time']
+        abstract = True
 
 
 class Client(BaseModel):
