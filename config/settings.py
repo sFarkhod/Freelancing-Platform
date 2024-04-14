@@ -39,8 +39,7 @@ INSTALLED_APPS = [
     # local
     "user",
     "job",
-    "payment",
-    'rest_framework',
+    "payment"
 
 ]
 
