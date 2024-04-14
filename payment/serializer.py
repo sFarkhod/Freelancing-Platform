@@ -23,13 +23,13 @@ class PaymentDetailSerializer(serializers.ModelSerializer):
 class CreatePaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
-        fields = ['amount', 'payment_date', 'client_id', 'freelancer_id']
+        fields = ['amount', 'payment_date', 'client', 'freelancer']
 
 
 class UpdatePaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
-        fields = ['amount', 'payment_date', 'client_id', 'freelancer_id']
+        fields = ['amount', 'payment_date', 'client', 'freelancer']
 
 
 class DeletePaymentSerializer(serializers.ModelSerializer):

@@ -1,12 +1,12 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+from user.models import Client, Freelancer
 
 
 class Payment(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_date = models.DateField(auto_now=True)
-    client = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='payments_made')
-    freelancer = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='payments_received')
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='payments_made')
+    freelancer = models.ForeignKey(Freelancer, on_delete=models.CASCADE, related_name='payments_received')
 
     class Meta:
         db_table = 'payment'
@@ -45,7 +45,7 @@ class Subscription(models.Model):
     subscription_type = models.ForeignKey(SubscriptionType, on_delete=models.CASCADE)
     start_date = models.DateField()
     end_date = models.DateField()
-    freelancer = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='subscriptions')
+    freelancer = models.ForeignKey(Freelancer, on_delete=models.CASCADE, related_name='subscriptions')
 
     def __str__(self):
         return str(self.subscription_type)
@@ -59,7 +59,7 @@ class Subscription(models.Model):
 class Withdraw(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     withdraw_date = models.DateField()
-    freelancer = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='withdrawals')
+    freelancer = models.ForeignKey(Freelancer, on_delete=models.CASCADE, related_name='withdrawals')
 
     def __str__(self):
         return str(self.withdraw_date)
