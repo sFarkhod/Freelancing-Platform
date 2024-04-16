@@ -6,5 +6,11 @@
 </head>
 <body>
 <h1>Hello Dear User Please update your billing</h1>
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.media }}
+        {{ form|crispy }}
+        <input type="submit" value="Update Billing" class="btn btn-success">
+    </form>
 </body>
 </html>
