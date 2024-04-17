@@ -6,9 +6,15 @@ from rest_framework.exceptions import ValidationError
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
-        write_only=True, required=True, validators=[validate_password])
+        write_only=True, required=True,
+        validators=[validate_password]
+    )
+
     confirm_password = serializers.CharField(
-        write_only=True, required=True, validators=[validate_password])
+        write_only=True, required=True,
+        validators=[validate_password]
+    )
+
     first_name = serializers.CharField(required=True)
     last_name = serializers.CharField(required=True)
     username = serializers.CharField(required=True)

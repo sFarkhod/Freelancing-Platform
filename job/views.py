@@ -6,12 +6,17 @@ from .models import Job, RequiredSkill
 from .serializer import JobSerializer, SkillsSerializer, JobListSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView
+from rest_framework.pagination import PageNumberPagination
 
 
 # views for job
 
+class JobPagination(PageNumberPagination):
+    page_size = 10
+
+
 @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def add_job(request):
     try:
         serializer = JobSerializer(data=request.data)
@@ -26,6 +31,7 @@ def add_job(request):
 
 class JobListApiView(ListAPIView):
     queryset = Job.objects.all()
+    pagination_class = JobPagination
     serializer_class = JobListSerializer
 
 
@@ -33,6 +39,7 @@ class JobListApiView(ListAPIView):
 def get_job(request, pk):
     try:
         job = Job.objects.get(pk=pk)
+
     except Job.DoesNoteExist:
         return Response({"error": "Job Not Found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -43,7 +50,7 @@ def get_job(request, pk):
 # views for required_skills
 
 @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def add_skill(request):
     try:
         serializer = SkillsSerializer(data=request.data)
