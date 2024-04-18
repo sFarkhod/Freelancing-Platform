@@ -39,7 +39,6 @@ class Offer(models.Model):
     payment_type = models.CharField(max_length=144, choices=PAYMENT_TYPES)
     project_lengs = models.CharField(max_length=255)
     required_skills = models.ForeignKey(RequiredSkill, on_delete=models.CASCADE)
-    freelancer = models.ForeignKey(Freelancer, on_delete=models.CASCADE)
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
     proposals = models.ForeignKey(Proposal, on_delete=models.CASCADE)
 
