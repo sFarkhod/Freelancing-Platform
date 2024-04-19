@@ -17,6 +17,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from rest_framework import generics
 
 
 class FeedbackAPIView(APIView):
@@ -65,19 +66,35 @@ class FreelancerListAPIView(APIView):
         return Response(data=data)
 
 
+# class FreelancerDetailAPIView(generics.RetrieveAPIView):
+#     serializer_class = FreelancerSerializer
+#     permission_classes = [IsAuthenticated, ]
+#     queryset = Freelancer.objects.all()
+#     lookup_field = 'id'
+
+
 class FreelancerDetailAPIView(APIView):
     permission_classes = [IsAuthenticated, ]
 
     def get(self, request, id):
-        freelancer = get_object_or_404(Freelancer, id=id)
-        if freelancer:
-            serializer = FreelancerSerializer(freelancer)
+        try:
+            freelancer = get_object_or_404(Freelancer, id=id)
+            if freelancer:
+                serializer = FreelancerSerializer(freelancer)
+                data = {
+                    "data": serializer.data,
+                    "status": status.HTTP_200_OK,
+                    "success": True
+                }
+                return Response(data=data)
+        except:
             data = {
-                "data": serializer.data,
-                "status": status.HTTP_200_OK,
-                "success": True
-            }
+                "data": [],
+                "status": status.HTTP_404_NOT_FOUND,
+                "success": False
+                }
             return Response(data=data)
+        
 
 
 class ClientListAPIView(APIView):
@@ -102,13 +119,21 @@ class ClientDetailAPIView(APIView):
     permission_classes = [IsAuthenticated, ]
 
     def get(self, request, id):
-        client = get_object_or_404(Client, id=id)
-        if client:
-            serializer = ClientSerializer(client)
+        try:
+            client = get_object_or_404(Client, id=id)
+            if client:
+                serializer = ClientSerializer(client)
+                data = {
+                    "data": serializer.data,
+                    "status": status.HTTP_200_OK,
+                    "success": True
+                }
+                return Response(data=data)
+        except:
             data = {
-                "data": serializer.data,
-                "status": status.HTTP_200_OK,
-                "success": True
+                "data": [],
+                "status": status.HTTP_404_NOT_FOUND,
+                "success": False
             }
             return Response(data=data)
     
