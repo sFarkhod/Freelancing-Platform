@@ -49,21 +49,10 @@ INSTALLED_APPS = [
 
 ]
 
-# 1245196346303833
-# 8948d70da47029a9ac0ace3763b7900d
-
 
 SITE_ID = 1
 
 SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-
-        'APP': {
-            'client_id': '829109274521-33jrgj99e1jd29u1f3v480je31ljjrdg.apps.googleusercontent.com',
-            'secret': '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',
-            'key': ''
-        }
-    },
 
     'facebook': {
         'METHOD': 'oauth2',
