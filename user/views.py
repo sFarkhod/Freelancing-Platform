@@ -2,7 +2,7 @@ from rest_framework import permissions
 from rest_framework.generics import CreateAPIView, UpdateAPIView
 from user.serializers import (SignUpSerializer, LoginSerializer, VerifyCodeSerializer, LoginRefreshSerializer,
                               LogoutSerializer, ForgotPassswordSerializer, ResetPasswordSerializer,
-                              FreelancerSerializer,
+                              FreelancerSerializer, FreelancerUpdateSerializer,
                               ClientSerializer, ClientUpdateSerializer,
                               FeedbackSerializer)  
 from user.models import CODE_VERIFIED, NEW, VIA_EMAIL, VIA_PHONE, User, Client, Freelancer, Feedback
@@ -95,16 +95,16 @@ class FreelancerDetailAPIView(APIView):
 
 class FreelancerUdateAPIView(APIView):
     permission_classes = [IsAuthenticated, ]
-    serializer_class = FreelancerSerializer
+    serializer_class = FreelancerUpdateSerializer
     
-    @swagger_auto_schema(request_body=FreelancerSerializer)
+    @swagger_auto_schema(request_body=FreelancerUpdateSerializer)
     def patch(self, request, id):
         try:
             freelaner = get_object_or_404(Freelancer, id=id)
         except:
             freelaner = None
         if freelaner:
-            serializer = FreelancerSerializer(instance=freelaner, data=request.data, partial=True)
+            serializer = FreelancerUpdateSerializer(instance=freelaner, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response(data=serializer.data, status=status.HTTP_200_OK)
