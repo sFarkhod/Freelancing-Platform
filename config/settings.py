@@ -1,25 +1,15 @@
 from pathlib import Path
-# from decouple import config
 from datetime import timedelta
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
-
-
-# SECRET_KEY = config("SECRET_KEY", cast=str,
-#                     default='django-insecure-dm*g^m1vz1b2p_ydl7h^r-^3pa1^8yd!l##x4%z3m$fk%xc_%-')
-# SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = config("DEBUG", cast=bool, default=True)
-
-
 SECRET_KEY = 'django-insecure-dm*g^m1vz1b2p_ydl7h^r-^3pa1^8yd!l##x4%z3m$fk%xc_%-'
 # SECURITY WARNING: keep the secret key used in production secret!
-DEBUG=True
+
+DEBUG = True
+
 ALLOWED_HOSTS = []
 
 AUTHENTICATION_BACKENDS = [
@@ -31,7 +21,6 @@ AUTHENTICATION_BACKENDS = [
 
 ]
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -42,17 +31,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-    
+
     # packages
     "drf_yasg",
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
-
-    # # social
-    # 'oauth2_provider',
-    # 'social_django',
-    # 'drf_social_oauth2',
 
     # local
     "user",
@@ -65,7 +49,6 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.google',
-
 
 ]
 
@@ -104,8 +87,6 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        # 'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-        # 'drf_social_oauth2.authentication.SocialAuthentication',
     ],
 
     'DEFAULT_PERMISSION_CLASSES': [
@@ -115,7 +96,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20
 }
-
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=12),
@@ -166,7 +146,6 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
@@ -185,7 +164,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -196,7 +174,6 @@ TIME_ZONE = 'Asia/Tashkent'
 USE_I18N = True
 
 USE_TZ = False
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
@@ -216,46 +193,3 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 SITE_ID = 1
 AUTH_USER_MODEL = 'user.User'
 
-
-# AUTHENTICATION_BACKENDS = (
-#     # Google
-#     'social_core.backends.google.GoogleOAuth2',
-#     # Google OpenID
-#     'drf_social_oauth2.backends.GoogleIdentityBackend',
-#     # Facebook
-#     'social_core.backends.facebook.FacebookAppOAuth2',
-#     'social_core.backends.facebook.FacebookOAuth2',
-#     # Github
-#     'social_core.backends.github.GithubOAuth2',
-#     #Instagram
-#     'social_core.backends.instagram.InstagramOAuth2',
-#     # Drf-social-oauth2
-#     'drf_social_oauth2.backends.DjangoOAuth2',
-#     # Django
-#     'django.contrib.auth.backends.ModelBackend',
-# )
-
-# # facebook
-# SOCIAL_AUTH_FACEBOOK_KEY = ''
-# SOCIAL_AUTH_FACEBOOK_SECRET = ''
-# SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
-# SOCIAL_AUTH_FACEBOOK_FROFILE_EXTRA_PARAMS = {
-#     'fields' : 'id, name, email'
-# }
-
-# # Google
-# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
-# SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
-# SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
-#     'https://www.googleapis.com/auth/userinfo.email',
-#     'https://www.googleapis.com/auth/userinfo.profile'
-# ]
-
-# # Github
-# SOCIAL_AUTH_GITHUB_KEY = ''
-# SOCIAL_AUTH_GITHUB_SECRET = ''
-
-# # instagram
-# SOCIAL_AUTH_INSTAGRAM_KEY = ''
-# SOCIAL_AUTH_INSTAGRAM_SECRET = ''
-# SOCIAL_AUTH_INSTAGRAM_AUTH_EXTRA_ARGUMENTS = {'scope' : 'likes comments relationships'}
