@@ -44,18 +44,11 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
 
-    # social
-    'oauth2_provider',
-    'social_django',
-    'drf_social_oauth2',
-
     # local
     "user",
     "job",
     "payment",
 
-    'rest_framework',
-    'drf_registration',
     # allauth
     'allauth',
     'allauth.account',
