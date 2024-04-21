@@ -23,6 +23,9 @@ urlpatterns = [
     path('job/', include("job.urls")),
     path('payment/', include("payment.urls")),
 
+    #oauth
+    # path('auth/', include('drf_social_oauth2.urls', namespace='drf')),
+
     #swagger
 
     path('swagger/', schema_view.with_ui(
