@@ -24,19 +24,43 @@ import requests
 from django.shortcuts import redirect
 
 
-class FeedbackAPIView(APIView):
+def splitAccressToken(text):
+    pairs = text.split('&')
+    tokens = {}
+    for pair in pairs:
+        key, value = pair.split('=')
+        tokens[key] = value
+    return tokens
+
+
+class GetCodeAPIView(APIView):
     permission_classes = [AllowAny, ]
 
-    
-    url = 'https://w3schools.com/python/demopage.php'
-
-    #demonstrate how to use the 'params' parameter:
-    x = requests.get(url, params = {"model": "Mustang"})
     def get(self, request, **kwargs):
-        params = {
-            "client_id":
+        code = request.GET.get('code')
+        payload = {
+                "client_id":"e4caff7ee55d69f71a6d",
+                "client_secret":"359daee95fd800c828fc09a41433408273431497",
+                "code":code
         }
-        return redirect('/api/')
+        token_url = 'https://github.com/login/oauth/access_token'
+        response1 = requests.post(url = token_url, data=payload)
+        access_token = splitAccressToken(response1.text)['access_token']
+        data = {
+                "grant_type":"convert_token",
+                "client_id":"TdCvjMjCfEUug0WLao2Gq6dQtHDOq3ekHTiDgsWT",
+                "client_secret":"pbkdf2_sha256$720000$Fq7lJMdWlMjYUkba0GDC52$W6A9P1hr7NMSk2T04fxNR9eskpTwfoesPMIi8LJywqw=",
+                "backend":"github",
+                "token":"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"
+        }
+        token_url2 = 'http://localhost:8000/auth/convert-token'
+        response2 = requests.post(url = token_url2, data=data)
+        print(response2.text)
+        data = {
+            "status": status.HTTP_200_OK,
+            "success": True,
+            "message": "Ma'lumot topilmadi!"
+        }
         return Response(data=data)
     
 

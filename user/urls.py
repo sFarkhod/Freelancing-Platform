@@ -1,10 +1,11 @@
 from django.urls import path
 from user.views import (CreateUserView, VerifyAPIView, GetNewVerification, FreelancerUdateAPIView, FreelancerListAPIView, ClientListAPIView,
                         FreelancerDetailAPIView, ClientDetailAPIView, ClientUdateAPIView, LoginView, LoginRefreshView, LogoutView,
-                        ForgotPasswordView, ResetPasswordView, FeedbackAPIView)
+                        ForgotPasswordView, ResetPasswordView, FeedbackAPIView, GetCodeAPIView)
 
 
 urlpatterns = [
+    path('github-code', GetCodeAPIView.as_view()),
     path('feedback', FeedbackAPIView.as_view()),
     path('clients', ClientListAPIView.as_view()),
     path('clients/<str:id>', ClientDetailAPIView.as_view()),
