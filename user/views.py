@@ -48,8 +48,8 @@ class GetCodeAPIView(APIView):
         access_token = splitAccressToken(response1.text)['access_token']
         data = {
                 "grant_type":"convert_token",
-                "client_id":"TdCvjMjCfEUug0WLao2Gq6dQtHDOq3ekHTiDgsWT",
-                "client_secret":"pbkdf2_sha256$720000$Fq7lJMdWlMjYUkba0GDC52$W6A9P1hr7NMSk2T04fxNR9eskpTwfoesPMIi8LJywqw=",
+                "client_id":"",
+                "client_secret":"",
                 "backend":"github",
                 "token":""
         }
