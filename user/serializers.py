@@ -19,7 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def set_null_value_to_other_model(self, user_instance):
         other_model_instance = CreditCard.objects.create(user=user_instance)
-        other_model_instance.null_field = None
+        other_model_instance.null_field = ('card_holder_name', 'Card_number', 'card_expiration_date')
         other_model_instance.save()
 
 
