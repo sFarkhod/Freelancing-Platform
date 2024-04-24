@@ -193,3 +193,12 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 SITE_ID = 1
 AUTH_USER_MODEL = 'user.User'
 
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        "SCOPE": [
+            'email',
+
+        ]
+
+    }
+}
