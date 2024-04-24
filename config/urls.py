@@ -25,6 +25,9 @@ urlpatterns = [
     path('auth/', include('drf_social_oauth2.urls', namespace='drf')),
     path('oauth/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 
+    #oauth
+    path('accounts/', include('allauth.urls')),
+
     #swagger
 
     path('swagger/', schema_view.with_ui(

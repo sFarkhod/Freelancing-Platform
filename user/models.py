@@ -52,7 +52,7 @@ class User(AbstractUser, BaseModel):
         return f"{self.first_name} {self.last_name}"
     
     def create_verify_code(self, verify_type):
-        code = "".join([str(random.randint(0,100) % 10) for _ in range(4)])
+        code = "".join([str(random.randint(0, 100) % 10) for _ in range(4)])
         UserConfirmation.objects.create(
             user_id = self.id,
             verify_type = verify_type,
@@ -92,7 +92,7 @@ class Client(BaseModel):
     phone_number = models.CharField(max_length=13, null=True, blank=True, unique=True)
     photo = models.ImageField(upload_to='clients/', null=True, blank=True, validators=[
         FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'heic', 'heif'])])
-    bio = models.TextField()
+    bio = models.TextField(null=True, blank=True)
     country = models.CharField(max_length=255, null=True, blank=True)
     city = models.CharField(max_length=255, null=True, blank=True)
     street1 = models.CharField(max_length=255, null=True, blank=True)
@@ -108,7 +108,7 @@ class Freelancer(BaseModel):
     phone_number = models.CharField(max_length=13, null=True, blank=True, unique=True)
     photo = models.ImageField(upload_to='freelancers/', null=True, blank=True, validators=[
         FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'heic', 'heif'])])
-    bio = models.TextField()
+    bio = models.TextField(null=True, blank=True)
     country = models.CharField(max_length=255, null=True, blank=True)
     city = models.CharField(max_length=255, null=True, blank=True)
     street1 = models.CharField(max_length=255, null=True, blank=True)

@@ -34,11 +34,28 @@ class ClientSerializer(serializers.ModelSerializer):
 
 
 class ClientUpdateSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    first_name = serializers.CharField(required=True)
+    last_name = serializers.CharField(required=True)
+    username = serializers.CharField(required=True)
+    email = serializers.CharField(required=True)
 
     class Meta:
         model = Client
-        fields = "__all__"
+        fields = ('first_name','last_name', 'username', 'email', 'bio', 'country',
+                    'city', 'street1', 'street2', 'balance', 'company', 'phone_number')
+    
+    def update(self, instance, validated_data):
+        username = validated_data.pop('username', '')
+        email = validated_data.pop('email', '')
+        first_name = validated_data.pop('first_name', '')
+        last_name = validated_data.pop('last_name', '')
+        instance = super().update(instance, validated_data)
+        instance.user.email = email
+        instance.user.name = username
+        instance.user.last_name = last_name
+        instance.user.first_name = first_name
+        instance.user.save()
+        return instance
 
 
 class FreelancerSerializer(serializers.ModelSerializer):
@@ -49,11 +66,43 @@ class FreelancerSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class FreelancerUpdateSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(required=True)
+    last_name = serializers.CharField(required=True)
+    username = serializers.CharField(required=True)
+    email = serializers.CharField(required=True)
+
+    class Meta:
+        model = Freelancer
+        fields = ('first_name','last_name', 'username', 'email', 'bio', 'country',
+                    'city', 'street1', 'street2', 'balance', 'company', 'phone_number' )
+    
+    
+    def update(self, instance, validated_data):
+        username = validated_data.pop('username', '')
+        email = validated_data.pop('email', '')
+        first_name = validated_data.pop('first_name', '')
+        last_name = validated_data.pop('last_name', '')
+        instance = super().update(instance, validated_data)
+        instance.user.email = email
+        instance.user.name = username
+        instance.user.last_name = last_name
+        instance.user.first_name = first_name
+        instance.user.save()
+        return instance
+        
+
 class SignUpSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
-        write_only=True, required=True, validators=[validate_password])
+        write_only=True, required=True,
+        validators=[validate_password]
+    )
+
     confirm_password = serializers.CharField(
-        write_only=True, required=True, validators=[validate_password])
+        write_only=True, required=True,
+        validators=[validate_password]
+    )
+
     first_name = serializers.CharField(required=True)
     last_name = serializers.CharField(required=True)
     username = serializers.CharField(required=True)

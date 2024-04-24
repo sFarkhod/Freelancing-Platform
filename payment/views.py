@@ -1,4 +1,6 @@
-from rest_framework import viewsets
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic import UpdateView
+from rest_framework.viewsets import ModelViewSet
 from .models import Payment, CreditCard, Subscription, Withdraw
 from .serializers import (
     PaymentSerializer, PaymentDetailSerializer, CreatePaymentSerializer, UpdatePaymentSerializer,
@@ -12,7 +14,7 @@ from .serializers import (
 )
 
 
-class PaymentViewSet(viewsets.ModelViewSet):
+class PaymentViewSet(ModelViewSet):
     queryset = Payment.objects.all()
 
     def get_serializer_class(self):
@@ -28,7 +30,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
             return DeletePaymentSerializer
 
 
-class CreditCardViewSet(viewsets.ModelViewSet):
+class CreditCardViewSet(ModelViewSet):
     queryset = CreditCard.objects.all()
 
     def get_serializer_class(self):
@@ -44,7 +46,7 @@ class CreditCardViewSet(viewsets.ModelViewSet):
             return DeleteCreditCardSerializer
 
 
-class SubscriptionViewSet(viewsets.ModelViewSet):
+class SubscriptionViewSet(ModelViewSet):
     queryset = Subscription.objects.all()
 
     def get_serializer_class(self):
@@ -60,7 +62,7 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
             return DeleteSubscriptionSerializer
 
 
-class WithdrawViewSet(viewsets.ModelViewSet):
+class WithdrawViewSet(ModelViewSet):
     queryset = Withdraw.objects.all()
 
     def get_serializer_class(self):
@@ -74,3 +76,9 @@ class WithdrawViewSet(viewsets.ModelViewSet):
             return UpdateWithdrawSerializer
         elif self.action == 'destroy':
             return DeleteWithdrawSerializer
+
+
+class FreelancerBillingUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    template_name = 'payment_update/update_payment.html'
+    model = CreditCard
+    fields = ['card_holder_name', 'card_number', 'card_expiration_date']

@@ -1,7 +1,10 @@
 from rest_framework import permissions
 from rest_framework.generics import CreateAPIView, UpdateAPIView
-from user.serializers import (SignUpSerializer, LoginSerializer, VerifyCodeSerializer, FreelancerSerializer, ClientSerializer,
-                               LoginRefreshSerializer, LogoutSerializer, ForgotPassswordSerializer, ResetPasswordSerializer, FeedbackSerializer)  
+from user.serializers import (SignUpSerializer, LoginSerializer, VerifyCodeSerializer, LoginRefreshSerializer,
+                              LogoutSerializer, ForgotPassswordSerializer, ResetPasswordSerializer,
+                              FreelancerSerializer, FreelancerUpdateSerializer,
+                              ClientSerializer, ClientUpdateSerializer,
+                              FeedbackSerializer)  
 from user.models import CODE_VERIFIED, NEW, VIA_EMAIL, VIA_PHONE, User, Client, Freelancer, Feedback
 from rest_framework.views import APIView
 from datetime import datetime
@@ -134,6 +137,7 @@ class FeedbackAPIView(APIView):
 
 class FreelancerListAPIView(APIView):
     permission_classes = [IsAuthenticated, ]
+    serializer_class = FreelancerSerializer
 
     def get(self, request, **kwargs):
         freelancers = Freelancer.objects.all()
@@ -152,21 +156,56 @@ class FreelancerListAPIView(APIView):
 
 class FreelancerDetailAPIView(APIView):
     permission_classes = [IsAuthenticated, ]
+    serializer_class = FreelancerSerializer
 
     def get(self, request, id):
-        freelancer = get_object_or_404(Freelancer, id=id)
-        if freelancer:
-            serializer = FreelancerSerializer(freelancer)
+        try:
+            freelancer = get_object_or_404(Freelancer, id=id)
+            if freelancer:
+                serializer = FreelancerSerializer(freelancer)
+                data = {
+                    "data": serializer.data,
+                    "status": status.HTTP_200_OK,
+                    "success": True
+                }
+                return Response(data=data)
+        except:
             data = {
-                "data": serializer.data,
-                "status": status.HTTP_200_OK,
-                "success": True
-            }
+                "data": [],
+                "status": status.HTTP_404_NOT_FOUND,
+                "success": False
+                }
             return Response(data=data)
+
+
+class FreelancerUdateAPIView(APIView):
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = FreelancerUpdateSerializer
+    
+    @swagger_auto_schema(request_body=FreelancerUpdateSerializer)
+    def patch(self, request, id):
+        try:
+            freelaner = get_object_or_404(Freelancer, id=id)
+        except:
+            freelaner = None
+        if freelaner:
+            serializer = FreelancerUpdateSerializer(instance=freelaner, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(data=serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        data = {
+            "data": [],
+            "status": status.HTTP_404_NOT_FOUND,
+            "success": False
+        }
+        return Response(data=data)
 
 
 class ClientListAPIView(APIView):
     permission_classes = [IsAuthenticated, ]
+    serializer_class = ClientSerializer
 
     def get(self, request, **kwargs):
         clients = Client.objects.all()
@@ -185,27 +224,51 @@ class ClientListAPIView(APIView):
 
 class ClientDetailAPIView(APIView):
     permission_classes = [IsAuthenticated, ]
+    serializer_class = ClientSerializer
 
     def get(self, request, id):
-        client = get_object_or_404(Client, id=id)
-        if client:
-            serializer = ClientSerializer(client)
+        try:
+            client = get_object_or_404(Client, id=id)
+            if client:
+                serializer = ClientSerializer(client)
+                data = {
+                    "data": serializer.data,
+                    "status": status.HTTP_200_OK,
+                    "success": True
+                }
+                return Response(data=data)
+        except:
             data = {
-                "data": serializer.data,
-                "status": status.HTTP_200_OK,
-                "success": True
+                "data": [],
+                "status": status.HTTP_404_NOT_FOUND,
+                "success": False
             }
             return Response(data=data)
+        
+
+class ClientUdateAPIView(APIView):
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = ClientUpdateSerializer
     
-    @swagger_auto_schema(request_body=ClientSerializer)
+    @swagger_auto_schema(request_body=ClientUpdateSerializer)
     def patch(self, request, id):
-        client = get_object_or_404(Client, id=id)
-        serializer = ClientSerializer(instance=client, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(data=serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            client = get_object_or_404(Client, id=id)
+        except:
+            client = None
+        if client:
+            serializer = ClientUpdateSerializer(instance=client, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(data=serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        data = {
+            "data": [],
+            "status": status.HTTP_404_NOT_FOUND,
+            "success": False
+        }
+        return Response(data=data)
 
 
 
