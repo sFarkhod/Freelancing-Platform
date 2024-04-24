@@ -39,8 +39,8 @@ class GetCodeAPIView(APIView):
     def get(self, request, **kwargs):
         code = request.GET.get('code')
         payload = {
-                "client_id":"e4caff7ee55d69f71a6d",
-                "client_secret":"359daee95fd800c828fc09a41433408273431497",
+                "client_id":"",
+                "client_secret":"",
                 "code":code
         }
         token_url = 'https://github.com/login/oauth/access_token'
