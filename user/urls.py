@@ -1,12 +1,16 @@
 from django.urls import path
 from user.views import (CreateUserView, VerifyAPIView, GetNewVerification, FreelancerListAPIView, ClientListAPIView,
                         FreelancerDetailAPIView, ClientDetailAPIView, LoginView, LoginRefreshView, LogoutView,
-                        ForgotPasswordView, ResetPasswordView, FeedbackAPIView)
+                        ForgotPasswordView, ResetPasswordView, FeedbackAPIView, GetGithubCodeAPIView, GetCodeAPIView, GetAccessTokenAPIView, GitHubUserView)
 
 
 urlpatterns = [
+    path('github-user', GitHubUserView.as_view()),
     path('feedback', FeedbackAPIView.as_view()),
     path('clients', ClientListAPIView.as_view()),
+    path('githubcode', GetGithubCodeAPIView.as_view()),
+    path('github/getcode', GetCodeAPIView.as_view()),
+    path('github/access_token', GetAccessTokenAPIView.as_view()),
     path('clients/<str:id>', ClientDetailAPIView.as_view()),
     path('freelancers', FreelancerListAPIView.as_view()),
     path('freelancers/<str:id>', FreelancerDetailAPIView.as_view()),

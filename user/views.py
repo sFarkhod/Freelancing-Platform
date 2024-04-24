@@ -14,9 +14,94 @@ from drf_yasg.utils import swagger_auto_schema
 from user.utility import check_email_username_or_phone, send_email
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+import requests
+from oauth2_provider.contrib.rest_framework import OAuth2Authentication
+from django.shortcuts import redirect
+
+
+class GitHubUserView(APIView):
+    authentication_classes = [OAuth2Authentication]
+    permission_classes = [AllowAny,]
+
+    def get(self, request):
+        user = request.user
+        return Response({"username": user.username, "email": user.email})
+    
+
+
+class GetAccessTokenAPIView(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def get(self, request):
+        access_token = request.GET.get('access_token')
+
+        data = {
+            "data": [],
+            "status": status.HTTP_200_OK,
+            "success": True
+        }
+        return Response(data=data)
+    
+
+def splitAccressToken(text):
+    pairs = text.split('&')
+    tokens = {}
+    for pair in pairs:
+        key, value = pair.split('=')
+        tokens[key] = value
+    return tokens
+
+
+class GetCodeAPIView(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def get(self, request):
+        code = request.GET.get('code')
+        url = 'https://github.com/login/oauth/access_token'
+        data = {
+            "client_id":"28f98a2ae1d93e5e2af8",
+            "client_secret":"09812227029e68454e23103b3d4eb3128e66b7c8",
+            "code":code
+        }
+        response = requests.post(url=url, json=data)
+        response_object = splitAccressToken(response.text)
+        url = 'http://127.0.0.1:8000/auth/convert-token/'
+        data = {
+            "grant_type":"convert_token",
+            "backend":"github",
+            "client_id":"28f98a2ae1d93e5e2af8",
+            "client_secret":"09812227029e68454e23103b3d4eb3128e66b7c8",
+            "token":response_object['access_token']
+        }
+        response = requests.post(url=url, json=data)
+        data = {
+            "data": [],
+            "status": status.HTTP_200_OK,
+            "success": True
+        }
+        return Response(data=data)
+
+
+class GetGithubCodeAPIView(APIView):
+    permission_classes = [AllowAny, ]
+
+    def get(self, request, **kwargs):
+        url = 'https://github.com/login/oauth/authorize'
+        params = {
+            "client_id":"28f98a2ae1d93e5e2af8",
+            "redirect_uri":"http://127.0.0.1:8000/user/github/getcode"
+        }
+        response = requests.get(url, params = params, allow_redirects=True)
+        data = {
+            "data": [],
+            "status": status.HTTP_200_OK,
+            "success": True
+        }
+        return Response(data=data)
+
 
 
 class FeedbackAPIView(APIView):
