@@ -39,19 +39,13 @@ class GetCodeAPIView(APIView):
     def get(self, request, **kwargs):
         code = request.GET.get('code')
         payload = {
-                "client_id":"",
-                "client_secret":"",
-                "code":code
+
         }
         token_url = 'https://github.com/login/oauth/access_token'
         response1 = requests.post(url = token_url, data=payload)
         access_token = splitAccressToken(response1.text)['access_token']
         data = {
-                "grant_type":"convert_token",
-                "client_id":"",
-                "client_secret":"",
-                "backend":"github",
-                "token":""
+
         }
         token_url2 = 'http://localhost:8000/auth/convert-token'
         response2 = requests.post(url = token_url2, data=data)
