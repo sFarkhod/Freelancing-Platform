@@ -186,7 +186,6 @@ class ClientUdateAPIView(APIView):
         return Response(data=data)
 
 
-
 class CreateUserView(CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (permissions.AllowAny, )

@@ -1,8 +1,7 @@
-from django.core.mail import EmailMessage
 import re
-import threading
 from django.core.exceptions import ValidationError
-from django.template.loader import render_to_string
+from django.core.mail import send_mail
+from django.conf import settings
 
 
 email_regex =re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b")
@@ -45,42 +44,10 @@ def check_email_username_or_phone(user_input):
     return user_input
 
 
-
-
-class EmailThread(threading.Thread):
-
-    def __init__(self, email):
-        self.email = email
-        threading.Thread.__init__(self)
-    
-    def run(self):
-        self.email.send()
-
-
-class Email:
-
-    @staticmethod
-    def send_email(data):
-        email = EmailMessage(
-            subject = data['subject'],
-            body = data['body'],
-            to = [data['to_email']]
-        )
-        if data.get('content_type') =='html':
-            email.content_subtype = 'html'
-            EmailThread(email).start()
-
-
 def send_email(email, code):
-    html_content = render_to_string(
-        'email/activate_account.html',
-        {'code':code}
-    )
-    Email.send_email(
-        {
-            'subject':"ro'yhatdan o'tish",
-            'to_email':email,
-            "body":html_content,
-            'content_type': "html"
-        }
-    )
+    subject = 'Send email verify code'
+    message = f'Salom sizning freelacer tasdiqlash kodingiz {code}'
+    from_email = settings.EMAIL_HOST_USER
+    recipient_list = [email,]
+
+    send_mail(subject, message, from_email, recipient_list)

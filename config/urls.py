@@ -24,7 +24,7 @@ urlpatterns = [
     path('payment/', include("payment.urls")),
 
     #oauth
-    # path('auth/', include('drf_social_oauth2.urls', namespace='drf')),
+    path('auth/', include('drf_social_oauth2.urls', namespace='drf')),
 
     #swagger
 

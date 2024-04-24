@@ -77,7 +77,7 @@ class FreelancerUpdateSerializer(serializers.ModelSerializer):
         fields = ('first_name','last_name', 'username', 'email', 'bio', 'country',
                     'city', 'street1', 'street2', 'balance', 'company', 'phone_number' )
     
-    
+
     def update(self, instance, validated_data):
         username = validated_data.pop('username', '')
         email = validated_data.pop('email', '')
@@ -267,14 +267,13 @@ class ForgotPassswordSerializer(serializers.Serializer):
 
 
 class ResetPasswordSerializer(serializers.Serializer):
-    id = serializers.UUIDField(read_only = True)
     password = serializers.CharField(write_only=True, required = True)
     confirm_password = serializers.CharField(write_only=True, required = True)
 
     class Meta:
         model = User
         fields = (
-            "id", "password", "confirm_password"
+            "password", "confirm_password"
         )
 
     def validate(self, data):

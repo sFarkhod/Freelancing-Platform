@@ -39,10 +39,10 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
 
-    # # social
-    # 'oauth2_provider',
-    # 'social_django',
-    # 'drf_social_oauth2',
+    # social
+    'oauth2_provider',
+    'social_django',
+    'drf_social_oauth2',
 
     # local
     "user",
@@ -85,8 +85,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        # 'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-        # 'drf_social_oauth2.authentication.SocialAuthentication',
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+        'drf_social_oauth2.authentication.SocialAuthentication',
     ],
 
     'DEFAULT_PERMISSION_CLASSES': [
@@ -148,6 +148,18 @@ DATABASES = {
 }
 
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': config("DB_NAME", cast=str, default="crm"),
+#         'USER': config("USER", cast=str, default="postgres"),
+#         'PASSWORD': config("PASSWORD", cast=str, default="postgres"),
+#         'HOST': config("HOST", cast=str, default="localhost"),
+#         'PORT': config("PORT", cast=int, default=5432),
+#     }
+# }
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
@@ -194,49 +206,58 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = config("EMAIL_HOST")
+# EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+# EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+# EMAIL_PORT = config("EMAIL_PORT")
+# EMAIL_USE_TLS = config("EMAIL_USE_TLS")
+# EMAIL_SEND_USER = config("EMAIL_SEND_USER")
+
 SITE_ID = 1
 AUTH_USER_MODEL = 'user.User'
 
 
-# AUTHENTICATION_BACKENDS = (
-#     # Google
-#     'social_core.backends.google.GoogleOAuth2',
-#     # Google OpenID
-#     'drf_social_oauth2.backends.GoogleIdentityBackend',
-#     # Facebook
-#     'social_core.backends.facebook.FacebookAppOAuth2',
-#     'social_core.backends.facebook.FacebookOAuth2',
-#     # Github
-#     'social_core.backends.github.GithubOAuth2',
-#     #Instagram
-#     'social_core.backends.instagram.InstagramOAuth2',
-#     # Drf-social-oauth2
-#     'drf_social_oauth2.backends.DjangoOAuth2',
-#     # Django
-#     'django.contrib.auth.backends.ModelBackend',
-# )
+AUTHENTICATION_BACKENDS = (
+    # Google
+    'social_core.backends.google.GoogleOAuth2',
+    # Google OpenID
+    'drf_social_oauth2.backends.GoogleIdentityBackend',
+    # Facebook
+    'social_core.backends.facebook.FacebookAppOAuth2',
+    'social_core.backends.facebook.FacebookOAuth2',
+    # Github
+    'social_core.backends.github.GithubOAuth2',
+    #Instagram
+    'social_core.backends.instagram.InstagramOAuth2',
+    # Drf-social-oauth2
+    'drf_social_oauth2.backends.DjangoOAuth2',
+    # Django
+    'django.contrib.auth.backends.ModelBackend',
+)
 
-# # facebook
-# SOCIAL_AUTH_FACEBOOK_KEY = ''
-# SOCIAL_AUTH_FACEBOOK_SECRET = ''
-# SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
-# SOCIAL_AUTH_FACEBOOK_FROFILE_EXTRA_PARAMS = {
-#     'fields' : 'id, name, email'
-# }
+# facebook
+SOCIAL_AUTH_FACEBOOK_KEY = ''
+SOCIAL_AUTH_FACEBOOK_SECRET = ''
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+SOCIAL_AUTH_FACEBOOK_FROFILE_EXTRA_PARAMS = {
+    'fields' : 'id, name, email'
+}
 
-# # Google
-# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
-# SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
-# SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
-#     'https://www.googleapis.com/auth/userinfo.email',
-#     'https://www.googleapis.com/auth/userinfo.profile'
-# ]
+# Google
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/userinfo.profile'
+]
 
-# # Github
-# SOCIAL_AUTH_GITHUB_KEY = ''
-# SOCIAL_AUTH_GITHUB_SECRET = ''
+# Github
+SOCIAL_AUTH_GITHUB_KEY = ''
+SOCIAL_AUTH_GITHUB_SECRET = ''
 
-# # instagram
-# SOCIAL_AUTH_INSTAGRAM_KEY = ''
-# SOCIAL_AUTH_INSTAGRAM_SECRET = ''
-# SOCIAL_AUTH_INSTAGRAM_AUTH_EXTRA_ARGUMENTS = {'scope' : 'likes comments relationships'}
+# instagram
+SOCIAL_AUTH_INSTAGRAM_KEY = ''
+SOCIAL_AUTH_INSTAGRAM_SECRET = ''
+SOCIAL_AUTH_INSTAGRAM_AUTH_EXTRA_ARGUMENTS = {'scope' : 'likes comments relationships'}
