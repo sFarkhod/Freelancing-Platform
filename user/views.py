@@ -51,7 +51,7 @@ class GetCodeAPIView(APIView):
                 "client_id":"TdCvjMjCfEUug0WLao2Gq6dQtHDOq3ekHTiDgsWT",
                 "client_secret":"pbkdf2_sha256$720000$Fq7lJMdWlMjYUkba0GDC52$W6A9P1hr7NMSk2T04fxNR9eskpTwfoesPMIi8LJywqw=",
                 "backend":"github",
-                "token":"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"
+                # "token":"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"
         }
         token_url2 = 'http://localhost:8000/auth/convert-token'
         response2 = requests.post(url = token_url2, data=data)
