@@ -70,7 +70,6 @@ class WithdrawDetailSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-# Create serializers for creation, updating, and deletion if needed
 class CreatePaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment

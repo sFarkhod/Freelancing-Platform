@@ -9,17 +9,21 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework.generics import get_object_or_404
 from django.contrib.auth.models import update_last_login
+from payment.models import CreditCard
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = ('user_type', 'username', 'email', 'last_name', 'first_name',)
-    
+
+    def set_null_value_to_other_model(self, user_instance):
+        other_model_instance = CreditCard.objects.create(user=user_instance)
+        other_model_instance.null_field = None
+        other_model_instance.save()
+
 
 class FeedbackSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Feedback
         fields = "__all__"
@@ -72,7 +76,6 @@ class SignUpSerializer(serializers.ModelSerializer):
             user.set_password(validated_data.get('password'))
         user.save()
         return user
-    
 
     def validate(self, data):
         password = data.get('password', None)
@@ -85,26 +88,26 @@ class SignUpSerializer(serializers.ModelSerializer):
             validate_password(confirm_password)
         if User.objects.filter(email=email).exists():
             data = {
-                'succes':False,
-                'message':"Bu email address ro'yhatdan o'tkazilgan"
+                'succes': False,
+                'message': "Bu email address ro'yhatdan o'tkazilgan"
             }
             raise ValidationError(data)
-        if password!=confirm_password:
+        if password != confirm_password:
             raise ValidationError(
                 {
-                    'message':"Parolingiz va tasdiqlash parolingiz bir biriga teng emas"
+                    'message': "Parolingiz va tasdiqlash parolingiz bir biriga teng emas"
                 }
             )
         return data
-    
+
     def to_representation(self, instance):
-        data =super(SignUpSerializer, self).to_representation(instance)
+        data = super(SignUpSerializer, self).to_representation(instance)
         data = instance.token()
         return data
 
 
 class VerifyCodeSerializer(serializers.Serializer):
-    code =  serializers.CharField(required=True)
+    code = serializers.CharField(required=True)
 
 
 class LoginSerializer(TokenObtainPairSerializer):
@@ -112,41 +115,41 @@ class LoginSerializer(TokenObtainPairSerializer):
     def __init__(self, *args, **kwargs):
         super(LoginSerializer, self).__init__(*args, **kwargs)
         self.fields['userinput'] = serializers.CharField(required=True)
-        self.fields['username'] = serializers.CharField(required=False, read_only = True)
+        self.fields['username'] = serializers.CharField(required=False, read_only=True)
 
     def auth_validate(self, data):
         user_input = data.get("userinput")
-        if check_email_username_or_phone(user_input)=='username':
+        if check_email_username_or_phone(user_input) == 'username':
             username = user_input
-        elif check_email_username_or_phone(user_input)=='email':
+        elif check_email_username_or_phone(user_input) == 'email':
             user = User.objects.get(email__iexact=user_input)
             username = user.username
-        elif check_email_username_or_phone(user_input)=='phone':
+        elif check_email_username_or_phone(user_input) == 'phone':
             user = User.objects.get(phone_number=user_input)
             username = user.username
         else:
             data = {
                 "success": True,
-                "message":"Siz email, username yoki telefon raqam jo'natishingiz kerak!"
+                "message": "Siz email, username yoki telefon raqam jo'natishingiz kerak!"
             }
             raise ValidationError(data)
-        
+
         authectication_kwargs = {
-            self.username_field : username,
+            self.username_field: username,
             'password': data['password']
         }
         current_user = User.objects.filter(username__iexact=username).first()
         if current_user is None:
             raise ValidationError(
                 {
-                    'success':False,
+                    'success': False,
                     "message": "Bunday foydalanuvchi mavjud emas!"
                 }
             )
         if current_user.auth_status != CODE_VERIFIED:
             raise ValidationError(
                 {
-                    'success':False,
+                    'success': False,
                     "message": "Siz ro'yhatdan to'liq o'tmagansiz."
                 }
             )
@@ -157,28 +160,27 @@ class LoginSerializer(TokenObtainPairSerializer):
         else:
             raise ValidationError(
                 {
-                'success':False, 
-                'message':" Sorry, login or password you entered is incorrect. Please check and try again"
-            }
+                    'success': False,
+                    'message': " Sorry, login or password you entered is incorrect. Please check and try again"
+                }
             )
-        
+
     def validate(self, data):
         self.auth_validate(data)
         data = self.user.token()
         data['user_type'] = self.user.user_type
         return data
-    
 
     def get_user(self, **kwargs):
         users = User.objects.filter(**kwargs)
         if not users.exists():
             raise ValidationError(
                 {
-                    "message":"No active account found"
+                    "message": "No active account found"
                 }
             )
         return users.first()
-    
+
 
 class LoginRefreshSerializer(TokenRefreshSerializer):
 
@@ -186,7 +188,7 @@ class LoginRefreshSerializer(TokenRefreshSerializer):
         data = super().validate(attrs)
         access_token_instance = AccessToken(data['access'])
         user_id = access_token_instance['user_id']
-        user = get_object_or_404(User, id = user_id)
+        user = get_object_or_404(User, id=user_id)
         update_last_login(None, user)
         return data
 
@@ -196,15 +198,15 @@ class LogoutSerializer(serializers.Serializer):
 
 
 class ForgotPassswordSerializer(serializers.Serializer):
-    email_address = serializers.CharField(write_only = True, required = True)
+    email_address = serializers.CharField(write_only=True, required=True)
 
     def validate(self, attrs):
         email_address = attrs.get('email_address', None)
         if email_address is None:
             raise ValidationError(
                 {
-                    'success':False,
-                    "message":"Email yoki telefon raqami kiritilishi shart!"
+                    'success': False,
+                    "message": "Email yoki telefon raqami kiritilishi shart!"
                 }
             )
         user = User.objects.filter(email=email_address).first()
@@ -213,14 +215,14 @@ class ForgotPassswordSerializer(serializers.Serializer):
             return attrs
         else:
             raise NotFound(
-                detail = "User not found"
+                detail="User not found"
             )
 
 
 class ResetPasswordSerializer(serializers.Serializer):
-    id = serializers.UUIDField(read_only = True)
-    password = serializers.CharField(write_only=True, required = True)
-    confirm_password = serializers.CharField(write_only=True, required = True)
+    id = serializers.UUIDField(read_only=True)
+    password = serializers.CharField(write_only=True, required=True)
+    confirm_password = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = User
@@ -234,8 +236,8 @@ class ResetPasswordSerializer(serializers.Serializer):
         if password != confirm_password:
             raise ValidationError(
                 {
-                    "success":False,
-                    "message":"Parollaringiz qiymati bir biriga teng emas"
+                    "success": False,
+                    "message": "Parollaringiz qiymati bir biriga teng emas"
                 })
         if password:
             validate_password(password)
