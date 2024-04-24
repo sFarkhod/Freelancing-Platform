@@ -17,10 +17,28 @@ from drf_yasg.utils import swagger_auto_schema
 from user.utility import check_email_username_or_phone, send_email
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+import requests
+from django.shortcuts import redirect
 
+
+class FeedbackAPIView(APIView):
+    permission_classes = [AllowAny, ]
+
+    
+    url = 'https://w3schools.com/python/demopage.php'
+
+    #demonstrate how to use the 'params' parameter:
+    x = requests.get(url, params = {"model": "Mustang"})
+    def get(self, request, **kwargs):
+        params = {
+            "client_id":
+        }
+        return redirect('/api/')
+        return Response(data=data)
+    
 
 class FeedbackAPIView(APIView):
     permission_classes = [IsAuthenticated, ]
