@@ -15,9 +15,9 @@ class Payment(models.Model):
 
 
 class CreditCard(models.Model):
-    card_holder_name = models.CharField(max_length=255)
-    card_number = models.CharField(max_length=16)
-    card_expiration_date = models.CharField(max_length=5)
+    card_holder_name = models.CharField(max_length=255, null=True)
+    card_number = models.CharField(max_length=16, null=True)
+    card_expiration_date = models.CharField(max_length=5, null=True)
 
     def __str__(self):
         return self.card_holder_name
