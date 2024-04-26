@@ -1,16 +1,16 @@
 from django.urls import path
 from user.views import (CreateUserView, VerifyAPIView, GetNewVerification, FreelancerListAPIView, ClientListAPIView,ClientUdateAPIView, 
                         FreelancerDetailAPIView, ClientDetailAPIView, LoginView, LoginRefreshView, LogoutView,FreelancerUdateAPIView,
-                        ForgotPasswordView, ResetPasswordView, FeedbackAPIView, GetGithubCodeAPIView, GetCodeAPIView, GetAccessTokenAPIView, GitHubUserView)
+                        ForgotPasswordView, ResetPasswordView, FeedbackAPIView, GithubLoginAPIView, GithubCallbackAPIView, GoogleLoginAPIView, GoogleCallbackAPIView)
 
 
 urlpatterns = [
-    path('github-user', GitHubUserView.as_view()),
+    path('github/callback', GithubCallbackAPIView.as_view()),
+    path('github-login', GithubLoginAPIView.as_view()),
+    path('google/callback', GoogleCallbackAPIView.as_view()),
+    path('google-login', GoogleLoginAPIView.as_view()),
     path('feedback', FeedbackAPIView.as_view()),
     path('clients', ClientListAPIView.as_view()),
-    path('githubcode', GetGithubCodeAPIView.as_view()),
-    path('github/getcode', GetCodeAPIView.as_view()),
-    path('github/access_token', GetAccessTokenAPIView.as_view()),
     path('clients/<str:id>', ClientDetailAPIView.as_view()),
     path('clients/<str:id>/update', ClientUdateAPIView.as_view()),
     path('freelancers', FreelancerListAPIView.as_view()),
