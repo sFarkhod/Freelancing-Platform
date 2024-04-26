@@ -86,13 +86,14 @@ class GoogleCallbackAPIView(APIView):
             if profile_response.status_code == 200:
                 data = {}
                 profile_data = profile_response.json()
+                print(profile_data)
                 if User.objects.filter(email=profile_data["email"]).exists():
                     user = User.objects.filter(email=profile_data["email"]).first()
                     refresh = RefreshToken.for_user(user)
                     data['access'] = str(refresh.access_token)
                     data['refresh'] = str(refresh)
                     return Response(data, status.HTTP_201_CREATED)
-                user = User.objects.create(last_name=profile_data["given_name"], email=profile_data["email"], first_name=profile_data["family_name"])
+                user = User.objects.create(username=profile_data["email"].split("@")[0],last_name=profile_data["given_name"], email=profile_data["email"], first_name=profile_data["family_name"])
                 refresh = RefreshToken.for_user(user)
                 data['access'] = str(refresh.access_token)
                 data['refresh'] = str(refresh)
