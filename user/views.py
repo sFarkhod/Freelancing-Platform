@@ -49,10 +49,9 @@ class GithubCallbackAPIView(APIView):
             },
             headers={'Accept': 'application/json'}
         )
-        print(response.text)
         access_token = response.json().get('access_token')
         return Response({'GitHub Access Token': access_token})
-    
+
 
 class GoogleLoginAPIView(APIView):
     permission_classes = [AllowAny, ]
@@ -80,42 +79,26 @@ class GoogleCallbackAPIView(APIView):
             headers={'Accept': 'application/json'}
         )
         access_token = response.json().get('access_token')
-        return Response({'Google Access Token': access_token})
+        if access_token:
+            profile_endpoint = 'https://www.googleapis.com/oauth2/v1/userinfo'
+            headers = {'Authorization': f'Bearer {access_token}'}
+            profile_response = requests.get(profile_endpoint, headers=headers)
+            if profile_response.status_code == 200:
+                data = {}
+                profile_data = profile_response.json()
+                if User.objects.filter(email=profile_data["email"]).exists():
+                    user = User.objects.filter(email=profile_data["email"]).first()
+                    refresh = RefreshToken.for_user(user)
+                    data['access'] = str(refresh.access_token)
+                    data['refresh'] = str(refresh)
+                    return Response(data, status.HTTP_201_CREATED)
+                user = User.objects.create(last_name=profile_data["given_name"], email=profile_data["email"], first_name=profile_data["family_name"])
+                refresh = RefreshToken.for_user(user)
+                data['access'] = str(refresh.access_token)
+                data['refresh'] = str(refresh)
+                return Response(data, status.HTTP_201_CREATED)
+        return Response({}, status.HTTP_400_BAD_REQUEST)
 
-
-def splitAccressToken(text):
-    pairs = text.split('&')
-    tokens = {}
-    for pair in pairs:
-        key, value = pair.split('=')
-        tokens[key] = value
-    return tokens
-
-
-class GetCodeAPIView(APIView):
-    permission_classes = [AllowAny, ]
-
-    def get(self, request, **kwargs):
-        code = request.GET.get('code')
-        payload = {
-
-        }
-        token_url = 'https://github.com/login/oauth/access_token'
-        response1 = requests.post(url = token_url, data=payload)
-        access_token = splitAccressToken(response1.text)['access_token']
-        data = {
-
-        }
-        token_url2 = 'http://localhost:8000/auth/convert-token'
-        response2 = requests.post(url = token_url2, data=data)
-        print(response2.text)
-        data = {
-            "status": status.HTTP_200_OK,
-            "success": True,
-            "message": "Ma'lumot topilmadi!"
-        }
-        return Response(data=data)
-    
 
 class FeedbackAPIView(APIView):
     permission_classes = [IsAuthenticated, ]
