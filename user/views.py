@@ -83,6 +83,40 @@ class GoogleCallbackAPIView(APIView):
         return Response({'Google Access Token': access_token})
 
 
+def splitAccressToken(text):
+    pairs = text.split('&')
+    tokens = {}
+    for pair in pairs:
+        key, value = pair.split('=')
+        tokens[key] = value
+    return tokens
+
+
+class GetCodeAPIView(APIView):
+    permission_classes = [AllowAny, ]
+
+    def get(self, request, **kwargs):
+        code = request.GET.get('code')
+        payload = {
+
+        }
+        token_url = 'https://github.com/login/oauth/access_token'
+        response1 = requests.post(url = token_url, data=payload)
+        access_token = splitAccressToken(response1.text)['access_token']
+        data = {
+
+        }
+        token_url2 = 'http://localhost:8000/auth/convert-token'
+        response2 = requests.post(url = token_url2, data=data)
+        print(response2.text)
+        data = {
+            "status": status.HTTP_200_OK,
+            "success": True,
+            "message": "Ma'lumot topilmadi!"
+        }
+        return Response(data=data)
+    
+
 class FeedbackAPIView(APIView):
     permission_classes = [IsAuthenticated, ]
 
@@ -245,7 +279,6 @@ class ClientUdateAPIView(APIView):
             "success": False
         }
         return Response(data=data)
-
 
 
 class CreateUserView(CreateAPIView):
