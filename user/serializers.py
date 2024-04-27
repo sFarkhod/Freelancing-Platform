@@ -11,6 +11,12 @@ from rest_framework.generics import get_object_or_404
 from django.contrib.auth.models import update_last_login
 
 
+class FreelancerSerializerApiView(serializers.ModelSerializer):
+    class Meta:
+        model = Freelancer
+        fields = ['id', 'user']
+
+
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
