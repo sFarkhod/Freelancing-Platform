@@ -4,8 +4,8 @@ from user.serializers import (SignUpSerializer, LoginSerializer, VerifyCodeSeria
                               LogoutSerializer, ForgotPassswordSerializer, ResetPasswordSerializer,
                               FreelancerSerializer, FreelancerUpdateSerializer,
                               ClientSerializer, ClientUpdateSerializer,
-                              FeedbackSerializer)  
-from user.models import CODE_VERIFIED, NEW, VIA_EMAIL, VIA_PHONE, User, Client, Freelancer, Feedback
+                              FeedbackSerializer, ReviewSerializer)  
+from user.models import CODE_VERIFIED, NEW, VIA_EMAIL, VIA_PHONE, User, Client, Freelancer, Feedback, Review
 from rest_framework.views import APIView
 from datetime import datetime
 from rest_framework.exceptions import ValidationError, NotFound
@@ -99,6 +99,21 @@ class GoogleCallbackAPIView(APIView):
                 data['refresh'] = str(refresh)
                 return Response(data, status.HTTP_201_CREATED)
         return Response({}, status.HTTP_400_BAD_REQUEST)
+
+
+class ReviewAPIView(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    @swagger_auto_schema(request_body=ReviewSerializer)
+    def post(self, request, id, *args, **kwargs):
+        serializer = ReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            user = get_object_or_404(User, id=id)
+            serializer.save(owner=request.user, user=user)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
 
 
 class FeedbackAPIView(APIView):

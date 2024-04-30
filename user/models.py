@@ -120,7 +120,12 @@ class Freelancer(BaseModel):
 
 class Feedback(BaseModel):
     comment = models.TextField(null=True, blank=True)
-    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.DO_NOTHING)
-    client = models.ForeignKey(Client, null=True, blank=True, on_delete=models.DO_NOTHING)
-    freelancer = models.ForeignKey(Freelancer, null=True, blank=True, on_delete=models.DO_NOTHING)
+    owner = models.ForeignKey(User, null=True, blank=True, related_name='feedback_owners', on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User, null=True, blank=True, related_name='feedback_users', on_delete=models.DO_NOTHING)
     stars_given = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+
+
+class Review(BaseModel):
+    comment = models.TextField(null=True, blank=True)
+    owner = models.ForeignKey(User, null=True, blank=True, related_name='review_owners', on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User, null=True, blank=True, related_name='review_users', on_delete=models.DO_NOTHING)

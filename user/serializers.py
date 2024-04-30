@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from user.models import Client, Freelancer, User, Feedback, VIA_EMAIL, CODE_VERIFIED
+from user.models import Client, Freelancer, User, Feedback, Review, VIA_EMAIL, CODE_VERIFIED
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.exceptions import ValidationError
 from user.utility import send_email, check_email_username_or_phone
@@ -16,6 +16,13 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('user_type', 'username', 'email', 'last_name', 'first_name',)
+    
+
+class ReviewSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Review
+        fields = ('comment',)
     
 
 class FeedbackSerializer(serializers.ModelSerializer):
@@ -227,7 +234,7 @@ class LoginSerializer(TokenObtainPairSerializer):
                 }
             )
         return users.first()
-    
+
 
 class LoginRefreshSerializer(TokenRefreshSerializer):
 
