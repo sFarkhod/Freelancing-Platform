@@ -5,7 +5,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from .models import Job, RequiredSkill, Proposal
-from .serializer import JobSerializer, SkillsSerializer, JobListSerializer, ProposalSerializer, ProposalListSerializer
+from .serializer import JobSerializer, SkillsSerializer, JobListSerializer, ProposalSerializer, \
+    ProposalListSerializer, ProposalSerializerForPatchingClient
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
@@ -186,11 +187,11 @@ def patch_proposal_for_client(request, pk):
         if request.user.user_type == 'client':
             try:
                 proposal = Proposal.objects.get(pk=pk)
-                job_proposal = proposal.job.job_client.user
-                client = Client.objects.get(user=job_proposal)
+
+                client = proposal.job.job_client.user
 
                 if client == request.user:
-                    serializer = ProposalSerializer(proposal, data=request.data)
+                    serializer = ProposalSerializerForPatchingClient(proposal, data=request.data)
                     if serializer.is_valid():
                         serializer.save()
                         return Response(serializer.data)

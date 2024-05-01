@@ -42,3 +42,11 @@ class ProposalListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Proposal
         fields = "__all__"
+
+
+class ProposalSerializerForPatchingClient(serializers.ModelSerializer):
+
+    class Meta:
+        model = Proposal
+        fields = ["watched", ]
+
