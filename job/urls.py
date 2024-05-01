@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import add_job, get_job, JobListApiView, add_skill, SkillsListApiView, \
-    CreateProposalApiView, ProposalListApiView, ProposalDetailApiView
+    CreateProposalApiView, get_my_proposals, ProposalDetailApiView, delete_proposal, \
+    update_proposal, patch_proposal_for_client
 
 
 urlpatterns = [
@@ -10,8 +11,14 @@ urlpatterns = [
     path('add_skills/', add_skill, ),
     path('get_skills/', SkillsListApiView.as_view(), ),
     path('create_proposal/', CreateProposalApiView.as_view(), ),
-    path('proposal_list/', ProposalListApiView.as_view(), ),
+    path('proposal_list/', get_my_proposals, ),
     path('proposal/<int:pk>/', ProposalDetailApiView.as_view(), ),
+    path('delete_proposal/<int:pk>/', delete_proposal, ),
+    path('update_proposal/<int:pk>/', update_proposal, ),
+    path('patch_proposal_for_client/<int:pk>/', patch_proposal_for_client, ),
+
+
+
 
 
 ]

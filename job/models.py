@@ -37,6 +37,7 @@ class Proposal(models.Model):
     freelancer = models.ForeignKey(Freelancer, on_delete=models.CASCADE)
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
     watched = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.freelancer.user.username
