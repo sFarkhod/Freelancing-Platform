@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from .models import Job, RequiredSkill, Proposal
 from .serializer import JobSerializer, SkillsSerializer, JobListSerializer, ProposalSerializer, \
-    ProposalListSerializer, ProposalSerializerForPatchingClient
+    ProposalListSerializer, ProposalSerializerForPatchingClient, ProposalSerializerForPatchingClientForClose
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
@@ -209,6 +209,32 @@ def patch_proposal_for_client(request, pk):
         return Response('Please signup or signin', status=401)
 
 
+@api_view(['PATCH'])
+def patch_proposal_for_client_for_close_proposal(request, pk):
+    if request.user.is_authenticated:
+        if request.user.user_type == 'client':
+            try:
+                proposal = Proposal.objects.get(pk=pk)
+
+                client = proposal.job.job_client.user
+
+                if client == request.user:
+                    serializer = ProposalSerializerForPatchingClientForClose(proposal, data=request.data)
+                    if serializer.is_valid():
+                        serializer.save()
+                        return Response(serializer.data)
+                    return Response(serializer.errors, status=400)
+                else:
+                    return Response('Unauthorized access', status=status.HTTP_401_UNAUTHORIZED)
+
+            except (Proposal.DoesNotExist, Client.DoesNotExist):
+                return Response('Proposal or Client not found', status=404)
+
+        else:
+            return Response('You cannot perform this action', status=403)
+
+    else:
+        return Response('Please signup or signin', status=401)
 
 
 

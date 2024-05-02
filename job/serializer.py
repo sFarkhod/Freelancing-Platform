@@ -50,3 +50,9 @@ class ProposalSerializerForPatchingClient(serializers.ModelSerializer):
         model = Proposal
         fields = ["watched", ]
 
+
+class ProposalSerializerForPatchingClientForClose(serializers.ModelSerializer):
+
+    class Meta:
+        model = Proposal
+        fields = ["is_active", ]
