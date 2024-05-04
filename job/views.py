@@ -90,7 +90,7 @@ class CreateProposalApiView(APIView):
                     if serializer.is_valid():
                         freelancer = Freelancer.objects.get(user=user)
 
-                        serializer.save(freelancer=freelancer)
+                        serializer.save(freelancer=freelancer, is_active=True)
                         return Response(serializer.data)
                     return Response(serializer.errors)
 
@@ -221,7 +221,7 @@ def patch_proposal_for_client_for_close_proposal(request, pk):
                 if client == request.user:
                     serializer = ProposalSerializerForPatchingClientForClose(proposal, data=request.data)
                     if serializer.is_valid():
-                        serializer.save()
+                        serializer.save(is_active=False)
                         return Response(serializer.data)
                     return Response(serializer.errors, status=400)
                 else:

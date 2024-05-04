@@ -55,4 +55,4 @@ class ProposalSerializerForPatchingClientForClose(serializers.ModelSerializer):
 
     class Meta:
         model = Proposal
-        fields = ["is_active", ]
+        fields = ["close_feedback", ]

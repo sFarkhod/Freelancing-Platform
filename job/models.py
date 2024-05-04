@@ -38,6 +38,7 @@ class Proposal(models.Model):
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
     watched = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    close_feedback = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.freelancer.user.username
