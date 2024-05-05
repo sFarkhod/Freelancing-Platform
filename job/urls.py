@@ -1,7 +1,8 @@
 from django.urls import path
 from .views import add_job, get_job, JobListApiView, add_skill, SkillsListApiView, \
     CreateProposalApiView, get_my_proposals, ProposalDetailApiView, delete_proposal, \
-    update_proposal, patch_proposal_for_client, patch_proposal_for_client_for_close_proposal
+    update_proposal, patch_proposal_for_client, patch_proposal_for_client_for_close_proposal, \
+    create_offer, ContractListApiView
 
 
 urlpatterns = [
@@ -17,6 +18,9 @@ urlpatterns = [
     path('update_proposal/<int:pk>/', update_proposal, ),
     path('patch_proposal_for_client/<int:pk>/', patch_proposal_for_client, ),
     path('patch_proposal_for_close/<int:pk>/', patch_proposal_for_client_for_close_proposal, ),
+    path('create_offer/', create_offer, ),
+    path('contract_list/', ContractListApiView.as_view(), ),
+
 
 
 

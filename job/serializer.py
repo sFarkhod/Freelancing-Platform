@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Job, RequiredSkill, Proposal
+from .models import Job, RequiredSkill, Proposal, Offer, Contract
 from user.serializers import FreelancerSerializerApiView, ClientSerializerApiView
 
 
@@ -56,3 +56,20 @@ class ProposalSerializerForPatchingClientForClose(serializers.ModelSerializer):
     class Meta:
         model = Proposal
         fields = ["close_feedback", ]
+
+
+class OfferSerializer(serializers.ModelSerializer):
+    freelancer = FreelancerSerializerApiView(read_only=True)
+    client = ClientSerializerApiView(read_only=True)
+
+    class Meta:
+        model = Offer
+        fields = ['id', 'project_lengs', 'client', 'freelancer', 'extra_information', 'proposals',
+                  'price', 'job', 'is_active', 'contract']
+
+
+class ContractSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Contract
+        fields = "__all__"

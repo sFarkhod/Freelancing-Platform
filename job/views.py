@@ -4,9 +4,10 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
-from .models import Job, RequiredSkill, Proposal
+from .models import Job, RequiredSkill, Proposal, Offer, Contract
 from .serializer import JobSerializer, SkillsSerializer, JobListSerializer, ProposalSerializer, \
-    ProposalListSerializer, ProposalSerializerForPatchingClient, ProposalSerializerForPatchingClientForClose
+    ProposalListSerializer, ProposalSerializerForPatchingClient, \
+    ProposalSerializerForPatchingClientForClose, OfferSerializer, ContractSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
@@ -237,11 +238,45 @@ def patch_proposal_for_client_for_close_proposal(request, pk):
         return Response('Please signup or signin', status=401)
 
 
+# views for offer
+
+@api_view(['POST'])
+def create_offer(request):
+    try:
+        if request.user.is_authenticated:
+            if request.user.user_type == "client":
+
+                serializer = OfferSerializer(data=request.data)
+                proposal_data = request.data['proposals']
+
+                proposal = Proposal.objects.get(pk=proposal_data)
+                freelancer = proposal.freelancer
+
+                if serializer.is_valid():
+                    client = Client.objects.get(user=request.user)
+                    serializer.save(client=client, is_active=True, freelancer=freelancer)
+                    return Response(serializer.data)
+                return Response(serializer.errors)
+
+            else:
+                return Response('you cannot do this action', status=status.HTTP_403_FORBIDDEN)
+
+        else:
+            return Response('signup or login', status=403)
+
+    except Proposal.DoesNotExist:
+        return Response('Proposal Does Not Found ', status=404)
 
 
+# class MyContractListApiView(APIView):
+#
+#     def get(self, request):
+#         if request.user.is_authenticated:
 
 
+class ContractListApiView(ListAPIView):
+    queryset = Contract.objects.all()
+    serializer_class = ContractSerializer
 
 
-
-
+# (c91cc5d0-d5cd-4ea8-8426-4f1263a87648)
