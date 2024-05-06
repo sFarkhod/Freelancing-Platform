@@ -15,7 +15,8 @@ class JobSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Job
-        fields = ['id', 'title', 'description', 'price', 'payment_type', "job_client", 'project_length', 'required_skills']
+        fields = ['id', 'title', 'description', 'price', 'payment_type', "job_client", 'project_length',
+                  'required_skills']
 
 
 class JobListSerializer(serializers.ModelSerializer):
@@ -45,14 +46,12 @@ class ProposalListSerializer(serializers.ModelSerializer):
 
 
 class ProposalSerializerForPatchingClient(serializers.ModelSerializer):
-
     class Meta:
         model = Proposal
         fields = ["watched", ]
 
 
 class ProposalSerializerForPatchingClientForClose(serializers.ModelSerializer):
-
     class Meta:
         model = Proposal
         fields = ["close_feedback", ]
@@ -68,8 +67,13 @@ class OfferSerializer(serializers.ModelSerializer):
                   'price', 'job', 'is_active', 'contract']
 
 
-class ContractSerializer(serializers.ModelSerializer):
+class OfferSerializerForClose(serializers.ModelSerializer):
+    class Meta:
+        model = Offer
+        fields = ['is_active', ]
 
+
+class ContractSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contract
         fields = "__all__"

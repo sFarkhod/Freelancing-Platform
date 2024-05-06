@@ -7,7 +7,8 @@ from rest_framework.response import Response
 from .models import Job, RequiredSkill, Proposal, Offer, Contract
 from .serializer import JobSerializer, SkillsSerializer, JobListSerializer, ProposalSerializer, \
     ProposalListSerializer, ProposalSerializerForPatchingClient, \
-    ProposalSerializerForPatchingClientForClose, OfferSerializer, ContractSerializer
+    ProposalSerializerForPatchingClientForClose, OfferSerializer, ContractSerializer, \
+    OfferSerializerForClose
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
@@ -123,7 +124,7 @@ def get_my_proposals(request):
 
 
 class ProposalDetailApiView(APIView):
-    def get(self, request, pk):
+    def get_proposals_fordetail(self, request, pk):
 
         try:
             if request.user.is_anonymous:
@@ -248,8 +249,8 @@ def create_offer(request):
 
                 serializer = OfferSerializer(data=request.data)
                 proposal_data = request.data['proposals']
-
                 proposal = Proposal.objects.get(pk=proposal_data)
+
                 freelancer = proposal.freelancer
 
                 if serializer.is_valid():
@@ -268,15 +269,60 @@ def create_offer(request):
         return Response('Proposal Does Not Found ', status=404)
 
 
-# class MyContractListApiView(APIView):
-#
-#     def get(self, request):
-#         if request.user.is_authenticated:
+class MyOfferListApiViewForClient(APIView):
 
+    def get(self, request):
+        if request.user.is_authenticated:
+            client = Client.objects.get(user=request.user)
+            offer = Offer.objects.filter(client=client)
+
+            if offer:
+                serializer = OfferSerializer(offer, many=True)
+                return Response(serializer.data)
+            return Response('you have not any offer.!', status=404)
+        else:
+            return Response('please signup or login', status=401)
+
+
+class MyOfferListApiViewForFreelancer(APIView):
+
+    def get(self, request):
+        if request.user.is_authenticated:
+            freelancer = Freelancer.objects.get(user=request.user)
+            offer = Offer.objects.filter(freelancer=freelancer)
+
+            if offer:
+                serializer = OfferSerializer(offer, many=True)
+                return Response(serializer.data)
+            return Response('you have not any offer.!', status=404)
+        else:
+            return Response('please signup or login', status=401)
+
+
+@api_view(['GET'])
+def close_offer(request, pk):
+    if request.user.is_authenticated:
+        if request.user.user_type == 'client':
+            try:
+                offer = Offer.objects.get(pk=pk)
+                client = offer.client.user
+                proposal = offer.proposals
+
+                if client == request.user:
+                    offer.is_active = False
+                    proposal.is_active = False
+
+                    offer.save()
+                    proposal.save()
+                    return Response("offer successfully closed .!")
+                else:
+                    return Response('you cannot do this action')
+            except Offer.DoesNotExist:
+                return Response('Offer Not Found', status=404)
+
+
+# views for contract
 
 class ContractListApiView(ListAPIView):
     queryset = Contract.objects.all()
     serializer_class = ContractSerializer
-
-
-# (c91cc5d0-d5cd-4ea8-8426-4f1263a87648)
