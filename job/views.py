@@ -15,6 +15,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from user.models import Freelancer, Client
 from django.db.utils import IntegrityError
+from rest_framework.permissions import IsAuthenticated
 
 
 # views for job
@@ -141,15 +142,16 @@ class ProposalDetailApiView(APIView):
 
 
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
 def delete_proposal(request, pk):
     try:
-        if request.user.is_authenticated:
-            freelancer = Freelancer.objects.get(user=request.user)
-            proposal = Proposal.objects.get(pk=pk, freelancer=freelancer)
 
-            if proposal:
-                proposal.delete()
-                return Response({"message": "Proposal was Successfully deleted"})
+        freelancer = Freelancer.objects.get(user=request.user)
+        proposal = Proposal.objects.get(pk=pk, freelancer=freelancer)
+
+        if proposal:
+            proposal.delete()
+            return Response({"message": "Proposal was Successfully deleted"})
 
     except Proposal.DoesNotExist:
         return Response({"error": "Proposal Yo'q xullas (get out here)"},
@@ -273,13 +275,16 @@ class MyOfferListApiViewForClient(APIView):
 
     def get(self, request):
         if request.user.is_authenticated:
-            client = Client.objects.get(user=request.user)
-            offer = Offer.objects.filter(client=client)
+            try:
+                client = Client.objects.get(user=request.user)
+                offer = Offer.objects.filter(client=client)
 
-            if offer:
-                serializer = OfferSerializer(offer, many=True)
-                return Response(serializer.data)
-            return Response('you have not any offer.!', status=404)
+                if offer:
+                    serializer = OfferSerializer(offer, many=True)
+                    return Response(serializer.data)
+                return Response('you have not any offer.!', status=404)
+            except (Client.DoesNotExist, Offer.DoesNotExist):
+                return Response('Not Found ')
         else:
             return Response('please signup or login', status=401)
 
@@ -288,13 +293,20 @@ class MyOfferListApiViewForFreelancer(APIView):
 
     def get(self, request):
         if request.user.is_authenticated:
-            freelancer = Freelancer.objects.get(user=request.user)
-            offer = Offer.objects.filter(freelancer=freelancer)
 
-            if offer:
-                serializer = OfferSerializer(offer, many=True)
-                return Response(serializer.data)
-            return Response('you have not any offer.!', status=404)
+            try:
+                freelancer = Freelancer.objects.get(user=request.user)
+                offer = Offer.objects.filter(freelancer=freelancer)
+
+                if offer:
+                    serializer = OfferSerializer(offer, many=True)
+                    return Response(serializer.data)
+                else:
+                    return Response('you have not any offer.!', status=404)
+
+            except (Freelancer.DoesNotExist, Offer.DoesNotExist):
+                return Response('Not Found ')
+
         else:
             return Response('please signup or login', status=401)
 

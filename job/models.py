@@ -37,7 +37,6 @@ class Proposal(models.Model):
     image3 = models.ImageField(upload_to='images/', blank=True, null=True)
     proposal_date = models.DateTimeField(auto_now_add=True)
     freelancer = models.ForeignKey(Freelancer, on_delete=models.CASCADE)
-    job = models.ForeignKey(Job, on_delete=models.CASCADE)
     watched = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     close_feedback = models.TextField(blank=True, null=True)

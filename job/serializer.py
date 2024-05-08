@@ -64,7 +64,7 @@ class OfferSerializer(serializers.ModelSerializer):
     class Meta:
         model = Offer
         fields = ['id', 'project_lengs', 'client', 'freelancer', 'extra_information', 'proposals',
-                  'price', 'job', 'is_active', 'contract']
+                  'price', 'is_active', 'contract']
 
 
 class OfferSerializerForClose(serializers.ModelSerializer):
