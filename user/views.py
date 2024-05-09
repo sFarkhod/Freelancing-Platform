@@ -4,8 +4,8 @@ from user.serializers import (SignUpSerializer, LoginSerializer, VerifyCodeSeria
                               LogoutSerializer, ForgotPassswordSerializer, ResetPasswordSerializer,
                               FreelancerSerializer, FreelancerUpdateSerializer,
                               ClientSerializer, ClientUpdateSerializer,
-                              FeedbackSerializer, ReviewSerializer)  
-from user.models import CODE_VERIFIED, NEW, VIA_EMAIL, VIA_PHONE, User, Client, Freelancer, Feedback, Review
+                              FeedbackSerializer, NotificationSerializer)  
+from user.models import CODE_VERIFIED, NEW, VIA_EMAIL, VIA_PHONE, User, Client, Freelancer, Feedback
 from rest_framework.views import APIView
 from datetime import datetime
 from rest_framework.exceptions import ValidationError, NotFound
@@ -23,34 +23,24 @@ from django.shortcuts import get_object_or_404
 import requests
 from django.shortcuts import redirect
 from django.conf import settings
+from django.shortcuts import render
 
 
-class GithubLoginAPIView(APIView):
+def index(request):
+    return render(request, 'index.html')
+
+
+class NotificationAPIView(APIView):
     permission_classes = [AllowAny, ]
 
-    def get(self, request, **kwargs):
-        client_id = settings.SOCIAL_AUTH_GITHUB_KEY
-        github_redirect_uri = "http://127.0.0.1:8000/user/github/callback"
-        return redirect(f"https://github.com/login/oauth/authorize?client_id={client_id}&redirect_uri={github_redirect_uri}")
-
-
-class GithubCallbackAPIView(APIView):
-    permission_classes = [AllowAny, ]
-
-    def get(self, request, **kwargs):
-        code = request.GET.get('code')
-        github_redirect_uri = "http://127.0.0.1:8000/user/github/callback"
-        response = requests.post('https://github.com/login/oauth/access_token',
-            params={
-                'client_id': settings.SOCIAL_AUTH_GITHUB_KEY,
-                'client_secret': settings.SOCIAL_AUTH_GITHUB_SECRET,
-                'code': code,
-                'redirect_uri': github_redirect_uri
-            },
-            headers={'Accept': 'application/json'}
-        )
-        access_token = response.json().get('access_token')
-        return Response({'GitHub Access Token': access_token})
+    @swagger_auto_schema(request_body=NotificationSerializer)
+    def post(self, request, *args, **kwargs):
+        serializer = NotificationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GoogleLoginAPIView(APIView):
@@ -86,7 +76,6 @@ class GoogleCallbackAPIView(APIView):
             if profile_response.status_code == 200:
                 data = {}
                 profile_data = profile_response.json()
-                print(profile_data)
                 if User.objects.filter(email=profile_data["email"]).exists():
                     user = User.objects.filter(email=profile_data["email"]).first()
                     refresh = RefreshToken.for_user(user)
@@ -99,22 +88,7 @@ class GoogleCallbackAPIView(APIView):
                 data['refresh'] = str(refresh)
                 return Response(data, status.HTTP_201_CREATED)
         return Response({}, status.HTTP_400_BAD_REQUEST)
-
-
-class ReviewAPIView(APIView):
-    permission_classes = [IsAuthenticated, ]
-
-    @swagger_auto_schema(request_body=ReviewSerializer)
-    def post(self, request, id, *args, **kwargs):
-        serializer = ReviewSerializer(data=request.data)
-        if serializer.is_valid():
-            user = get_object_or_404(User, id=id)
-            serializer.save(owner=request.user, user=user)
-            return Response(data=serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-
 
 class FeedbackAPIView(APIView):
     permission_classes = [IsAuthenticated, ]

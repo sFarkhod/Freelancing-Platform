@@ -6,6 +6,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 import uuid
 from django.contrib.auth.models import AbstractUser
 from datetime import datetime, timedelta
+from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 
 VIA_EMAIL, VIA_PHONE = ('via_email', 'via_phone')
@@ -65,7 +67,7 @@ class User(AbstractUser, BaseModel):
             "access" : str(refresh.access_token),
             "refresh": str(refresh)
         }
-
+    
 
 class UserConfirmation(BaseModel):
     TYPE_CHOICES = (
@@ -98,8 +100,6 @@ class Client(BaseModel):
     street1 = models.CharField(max_length=255, null=True, blank=True)
     street2 = models.CharField(max_length=255, null=True, blank=True)
     balance = models.CharField(max_length=255, null=True, blank=True)
-    # credit_card = models.ForeignKey('payment.Credit_Card', on_delete=models.DO_NOTHING)
-    job = models.ForeignKey('job.Job', null=True, blank=True, on_delete=models.DO_NOTHING)
 
 
 class Freelancer(BaseModel):
@@ -114,8 +114,6 @@ class Freelancer(BaseModel):
     street1 = models.CharField(max_length=255, null=True, blank=True)
     street2 = models.CharField(max_length=255, null=True, blank=True)
     balance = models.CharField(max_length=255, null=True, blank=True)
-    # credit_card = models.ForeignKey('payment.Credit_Card', on_delete=models.DO_NOTHING)
-    project = models.ForeignKey('job.Job', null=True, blank=True, on_delete=models.DO_NOTHING)
 
 
 class Feedback(BaseModel):
@@ -125,7 +123,14 @@ class Feedback(BaseModel):
     stars_given = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
 
 
-class Review(BaseModel):
-    comment = models.TextField(null=True, blank=True)
-    owner = models.ForeignKey(User, null=True, blank=True, related_name='review_owners', on_delete=models.DO_NOTHING)
-    user = models.ForeignKey(User, null=True, blank=True, related_name='review_users', on_delete=models.DO_NOTHING)
+class Notification(BaseModel):
+    recipient = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='notifications',
+        verbose_name=_('recipient'),
+        blank=False,
+    )
+    title = models.CharField(max_length=255, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    is_read = models.BooleanField(default=False)

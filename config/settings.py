@@ -20,12 +20,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-dm*g^m1vz1b2p_ydl7h^r-^3pa1^8yd!l##x4%z3m$fk%xc_%-'
 # SECURITY WARNING: keep the secret key used in production secret!
 DEBUG=True
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'http', 'websocket']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    #channels 
+    "daphne",
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,6 +43,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
 
+    
+
     # social
     'oauth2_provider',
     'social_django',
@@ -53,6 +58,17 @@ INSTALLED_APPS = [
     "payment",
 
 ]
+
+ASGI_APPLICATION = 'config.asgi.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': "channels.layers.InMemoryChannelLayer",
+        # 'CONFIG': {
+        #     "hosts": [('127.0.0.1', 6379)],
+        # },
+    },
+}
+
 
 CORS_ORIGIN_ALLOW_ALL = True
 

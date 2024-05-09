@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from user.models import Client, Freelancer, User, Feedback, Review, VIA_EMAIL, CODE_VERIFIED
+from user.models import Client, Freelancer, Notification, User, Feedback, VIA_EMAIL, CODE_VERIFIED
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.exceptions import ValidationError
 from user.utility import send_email, check_email_username_or_phone
@@ -11,18 +11,17 @@ from rest_framework.generics import get_object_or_404
 from django.contrib.auth.models import update_last_login
 
 
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = '__all__'
+
+
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
         fields = ('user_type', 'username', 'email', 'last_name', 'first_name',)
-    
-
-class ReviewSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Review
-        fields = ('comment',)
     
 
 class FeedbackSerializer(serializers.ModelSerializer):

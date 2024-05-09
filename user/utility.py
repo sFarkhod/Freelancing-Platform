@@ -1,10 +1,9 @@
 import re
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
-from django.conf import settings
 
 
-email_regex =re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b")
+email_regex = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b")
 phone_regex = re.compile(r"(\+[0-9]+\s*)?(\([0-9]+\))?[\s0-9\-]+[0-9]+")
 username_regex = re.compile(r"^[a-zA-Z0-9_.-]+$")
 
