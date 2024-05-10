@@ -8,7 +8,7 @@ from .models import Job, RequiredSkill, Proposal, Offer, Contract
 from .serializer import JobSerializer, SkillsSerializer, JobListSerializer, ProposalSerializer, \
     ProposalListSerializer, ProposalSerializerForPatchingClient, \
     ProposalSerializerForPatchingClientForClose, OfferSerializer, ContractSerializer, \
-    OfferSerializerForClose
+    OfferSerializerForClose, ContractSerializerForFreelancer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
@@ -311,26 +311,64 @@ class MyOfferListApiViewForFreelancer(APIView):
             return Response('please signup or login', status=401)
 
 
+# close offer for freelancer
+
 @api_view(['GET'])
 def close_offer(request, pk):
     if request.user.is_authenticated:
-        if request.user.user_type == 'client':
+        if request.user.user_type == 'freelancer':
             try:
                 offer = Offer.objects.get(pk=pk)
-                client = offer.client.user
-                proposal = offer.proposals
+                freelancer = offer.proposals.freelancer.user
+                proposals = offer.proposals
 
-                if client == request.user:
+                if request.user == freelancer:
                     offer.is_active = False
-                    proposal.is_active = False
+                    proposals.is_active = False
 
                     offer.save()
-                    proposal.save()
+                    proposals.save()
                     return Response("offer successfully closed .!")
                 else:
                     return Response('you cannot do this action')
             except Offer.DoesNotExist:
                 return Response('Offer Not Found', status=404)
+
+        else:
+            return Response('you cannot do this action')
+
+    else:
+        return Response('you must sign in or register our platform.!', status=403)
+
+
+# accept offer for freelancer
+
+@api_view(['GET'])
+def accept_offer(request, pk):
+    try:
+        if request.user.is_authenticated:
+            if request.user.user_type == 'freelancer':
+                offer = Offer.objects.get(pk=pk)
+
+                accept_user = offer.proposals.freelancer.user
+
+                if request.user == accept_user:
+                    offer.is_active = True
+                    offer.proposals.is_active = True
+
+                    offer.save()
+                    return Response('offer was accepted.!', status=200)
+                else:
+                    return Response('you cannot do this action', status=403)
+
+            else:
+                return Response('you cannot do this action', status=403)
+
+        else:
+            return Response('you must sign in or register our platform.!', status=403)
+
+    except Offer.DoesNotExist:
+        return Response('Offer Not Found', status=404)
 
 
 # views for contract
@@ -338,3 +376,59 @@ def close_offer(request, pk):
 class ContractListApiView(ListAPIView):
     queryset = Contract.objects.all()
     serializer_class = ContractSerializer
+
+
+# must be to test
+
+@api_view(['PATCH'])
+def sign_contract(request, pk):
+    try:
+        if request.user.is_authenticated:
+            if request.user.user_type == 'freelancer':
+                contract = Contract.objects.get(pk=pk)
+                user = contract.offer.proposals.freelancer.user
+
+                if request.user == user:
+                    serializer = ContractSerializerForFreelancer(contract, data=request.data)
+
+                    if serializer.is_valid():
+                        serializer.save()
+                        return Response(serializer.data)
+                    return Response(serializer.errors)
+                else:
+                    return Response('you cannot do this action', status=403)
+
+            else:
+                return Response('you cannot do this action', status=403)
+
+        else:
+            return Response('you must sign in or register our platform.!', status=403)
+
+    except Offer.DoesNotExist:
+        return Response('Offer Not Found', status=404)
+
+
+@api_view(['GET'])
+def close_contract(request, pk):
+    try:
+        if request.user.is_authenticated:
+            if request.user.user_type == 'freelancer':
+                contract = Contract.objects.get(pk=pk)
+                user = contract.offer.proposals.freelancer.user
+
+                if request.user == user:
+                    contract.offer.is_active = False
+                    contract.offer.proposals.is_active = False
+                    contract.save()
+                    return Response('contract was successfully closed')
+                else:
+                    return Response('you cannot do this action', status=403)
+
+            else:
+                return Response('you cannot do this action', status=403)
+
+        else:
+            return Response('you must sign in or register our platform.!', status=403)
+
+    except Offer.DoesNotExist:
+        return Response('Offer Not Found', status=404)

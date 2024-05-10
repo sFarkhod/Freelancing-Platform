@@ -64,7 +64,7 @@ class OfferSerializer(serializers.ModelSerializer):
     class Meta:
         model = Offer
         fields = ['id', 'project_lengs', 'client', 'freelancer', 'extra_information', 'proposals',
-                  'price', 'is_active', 'contract']
+                  'price', 'is_active', 'upload_file', 'contract']
 
 
 class OfferSerializerForClose(serializers.ModelSerializer):
@@ -74,6 +74,14 @@ class OfferSerializerForClose(serializers.ModelSerializer):
 
 
 class ContractSerializer(serializers.ModelSerializer):
+    offer = OfferSerializer(read_only=True)
+
     class Meta:
         model = Contract
         fields = "__all__"
+
+
+class ContractSerializerForFreelancer(serializers.ModelSerializer):
+    class Meta:
+        model = Contract
+        fields = ['sign_img', ]
