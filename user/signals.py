@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from user.models import User, Freelancer, Client,Notification
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from job.models import Proposal
 
 
 @receiver(post_save, sender=User)
@@ -25,5 +26,21 @@ def notification_created(sender, instance, created, **kwargs):
                 "title": instance.title,
                 "description": instance.description,
                 "created_time": instance.created_time
+            }
+        )
+
+
+@receiver(post_save, sender=Proposal)
+def proposal_changed(sender, instance, created, **kwargs):
+    if created:
+        pass
+    else:
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            'public_room',
+            {
+                "type": "send_notification",
+                "title": "notification title",
+                "description": "notification description"
             }
         )

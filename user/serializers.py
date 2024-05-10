@@ -17,6 +17,32 @@ class NotificationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+# job app uchun qo'shildi >>>>>>>
+
+class UserSerializerApiView(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", 'username']
+
+
+class ClientSerializerApiView(serializers.ModelSerializer):
+    user = UserSerializerApiView(read_only=True)
+
+    class Meta:
+        model = Client
+        fields = ["id", 'user']
+
+
+class FreelancerSerializerApiView(serializers.ModelSerializer):
+    user = UserSerializerApiView(read_only=True)
+
+    class Meta:
+        model = Freelancer
+        fields = ['id', 'user']
+
+# job app uchun qo'shildi <<<<<<<
+
+
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
