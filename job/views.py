@@ -124,21 +124,23 @@ def get_my_proposals(request):
         Response({"error": "User is not authenticated.!"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class ProposalDetailApiView(APIView):
-    def get_proposals_fordetail(self, request, pk):
+@api_view(['GET'])
+def get_proposals_fordetail(request, pk):
+    try:
+        if request.user.is_anonymous:
+            return Response('loging qiling shaxsingiz aniqlanmadi')
 
-        try:
-            if request.user.is_anonymous:
-                return Response('loging qiling shaxsingiz aniqlanmadi')
+        freelancer = Freelancer.objects.get(user=request.user)
+        proposal = Proposal.objects.get(pk=pk, freelancer=freelancer)
+        serializer = ProposalListSerializer(proposal)
 
-            freelancer = Freelancer.objects.get(user=request.user)
-            proposal = Proposal.objects.get(pk=pk, freelancer=freelancer)
-            serializer = ProposalListSerializer(proposal)
+        return Response(serializer.data)
 
-            return Response(serializer.data)
+    except Proposal.DoesNotExist:
+        return Response({"message": "Proposal Not Found.!"}, status=status.HTTP_404_NOT_FOUND)
 
-        except Proposal.DoesNotExist:
-            return Response({"message": "Proposal Not Found.!"}, status=status.HTTP_404_NOT_FOUND)
+    except Freelancer.DoesNotExist:
+        return Response({"message": "You Cannot do this action.!"}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['DELETE'])
@@ -185,21 +187,20 @@ def update_proposal(request, pk):
 
 # proposal for client
 
-@api_view(['PATCH'])
-def patch_proposal_for_client(request, pk):
+@api_view(['GET'])
+def detail_proposal_for_client(request, pk):
     if request.user.is_authenticated:
         if request.user.user_type == 'client':
             try:
                 proposal = Proposal.objects.get(pk=pk)
-
                 client = proposal.job.job_client.user
 
                 if client == request.user:
-                    serializer = ProposalSerializerForPatchingClient(proposal, data=request.data)
-                    if serializer.is_valid():
-                        serializer.save()
-                        return Response(serializer.data)
-                    return Response(serializer.errors, status=400)
+                    proposal.watched = True
+                    serializer = ProposalSerializer(proposal)
+
+                    return Response(serializer.data)
+
                 else:
                     return Response('Unauthorized access', status=403)
 
@@ -408,21 +409,20 @@ def sign_contract(request, pk):
         return Response('Offer Not Found', status=404)
 
 
+# hali oxiriga yetmadi
 @api_view(['GET'])
 def close_contract(request, pk):
     try:
         if request.user.is_authenticated:
-            if request.user.user_type == 'freelancer':
-                contract = Contract.objects.get(pk=pk)
-                user = contract.offer.proposals.freelancer.user
+            contract = Contract.objects.get(pk=pk)
+            user = contract.offer.proposals.freelancer.user
+            if request.user.user_type == 'freelancer' and user == request.user:
 
-                if request.user == user:
-                    contract.offer.is_active = False
-                    contract.offer.proposals.is_active = False
-                    contract.save()
-                    return Response('contract was successfully closed')
-                else:
-                    return Response('you cannot do this action', status=403)
+                contract.offer.is_active = False
+                contract.offer.proposals.is_active = False
+                contract.save()
+                serializer = ContractSerializer(contract)
+                return Response(serializer.data)
 
             else:
                 return Response('you cannot do this action', status=403)
@@ -430,5 +430,5 @@ def close_contract(request, pk):
         else:
             return Response('you must sign in or register our platform.!', status=403)
 
-    except Offer.DoesNotExist:
-        return Response('Offer Not Found', status=404)
+    except Contract.DoesNotExist:
+        return Response('Contract Not Found', status=404)
