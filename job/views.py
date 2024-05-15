@@ -8,7 +8,7 @@ from .models import Job, RequiredSkill, Proposal, Offer, Contract
 from .serializer import JobSerializer, SkillsSerializer, JobListSerializer, ProposalSerializer, \
     ProposalListSerializer, ProposalSerializerForPatchingClient, \
     ProposalSerializerForPatchingClientForClose, OfferSerializer, ContractSerializer, \
-    OfferSerializerForClose
+    OfferSerializerForClose, ContractSerializerForFreelancer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
@@ -124,21 +124,23 @@ def get_my_proposals(request):
         Response({"error": "User is not authenticated.!"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class ProposalDetailApiView(APIView):
-    def get_proposals_fordetail(self, request, pk):
+@api_view(['GET'])
+def get_proposals_fordetail(request, pk):
+    try:
+        if request.user.is_anonymous:
+            return Response('loging qiling shaxsingiz aniqlanmadi')
 
-        try:
-            if request.user.is_anonymous:
-                return Response('loging qiling shaxsingiz aniqlanmadi')
+        freelancer = Freelancer.objects.get(user=request.user)
+        proposal = Proposal.objects.get(pk=pk, freelancer=freelancer)
+        serializer = ProposalListSerializer(proposal)
 
-            freelancer = Freelancer.objects.get(user=request.user)
-            proposal = Proposal.objects.get(pk=pk, freelancer=freelancer)
-            serializer = ProposalListSerializer(proposal)
+        return Response(serializer.data)
 
-            return Response(serializer.data)
+    except Proposal.DoesNotExist:
+        return Response({"message": "Proposal Not Found.!"}, status=status.HTTP_404_NOT_FOUND)
 
-        except Proposal.DoesNotExist:
-            return Response({"message": "Proposal Not Found.!"}, status=status.HTTP_404_NOT_FOUND)
+    except Freelancer.DoesNotExist:
+        return Response({"message": "You Cannot do this action.!"}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['DELETE'])
@@ -185,21 +187,20 @@ def update_proposal(request, pk):
 
 # proposal for client
 
-@api_view(['PATCH'])
-def patch_proposal_for_client(request, pk):
+@api_view(['GET'])
+def detail_proposal_for_client(request, pk):
     if request.user.is_authenticated:
         if request.user.user_type == 'client':
             try:
                 proposal = Proposal.objects.get(pk=pk)
-
                 client = proposal.job.job_client.user
 
                 if client == request.user:
-                    serializer = ProposalSerializerForPatchingClient(proposal, data=request.data)
-                    if serializer.is_valid():
-                        serializer.save()
-                        return Response(serializer.data)
-                    return Response(serializer.errors, status=400)
+                    proposal.watched = True
+                    serializer = ProposalSerializer(proposal)
+
+                    return Response(serializer.data)
+
                 else:
                     return Response('Unauthorized access', status=403)
 
@@ -311,26 +312,64 @@ class MyOfferListApiViewForFreelancer(APIView):
             return Response('please signup or login', status=401)
 
 
+# close offer for freelancer
+
 @api_view(['GET'])
 def close_offer(request, pk):
     if request.user.is_authenticated:
-        if request.user.user_type == 'client':
+        if request.user.user_type == 'freelancer':
             try:
                 offer = Offer.objects.get(pk=pk)
-                client = offer.client.user
-                proposal = offer.proposals
+                freelancer = offer.proposals.freelancer.user
+                proposals = offer.proposals
 
-                if client == request.user:
+                if request.user == freelancer:
                     offer.is_active = False
-                    proposal.is_active = False
+                    proposals.is_active = False
 
                     offer.save()
-                    proposal.save()
+                    proposals.save()
                     return Response("offer successfully closed .!")
                 else:
                     return Response('you cannot do this action')
             except Offer.DoesNotExist:
                 return Response('Offer Not Found', status=404)
+
+        else:
+            return Response('you cannot do this action')
+
+    else:
+        return Response('you must sign in or register our platform.!', status=403)
+
+
+# accept offer for freelancer
+
+@api_view(['GET'])
+def accept_offer(request, pk):
+    try:
+        if request.user.is_authenticated:
+            if request.user.user_type == 'freelancer':
+                offer = Offer.objects.get(pk=pk)
+
+                accept_user = offer.proposals.freelancer.user
+
+                if request.user == accept_user:
+                    offer.is_active = True
+                    offer.proposals.is_active = True
+
+                    offer.save()
+                    return Response('offer was accepted.!', status=200)
+                else:
+                    return Response('you cannot do this action', status=403)
+
+            else:
+                return Response('you cannot do this action', status=403)
+
+        else:
+            return Response('you must sign in or register our platform.!', status=403)
+
+    except Offer.DoesNotExist:
+        return Response('Offer Not Found', status=404)
 
 
 # views for contract
@@ -338,3 +377,65 @@ def close_offer(request, pk):
 class ContractListApiView(ListAPIView):
     queryset = Contract.objects.all()
     serializer_class = ContractSerializer
+
+
+# must be to test
+
+@api_view(['PATCH'])
+def sign_contract(request, pk):
+    try:
+        if request.user.is_authenticated:
+            if request.user.user_type == 'freelancer':
+                contract = Contract.objects.get(pk=pk)
+                user = contract.offer.proposals.freelancer.user
+
+                if request.user == user:
+                    serializer = ContractSerializerForFreelancer(contract, data=request.data)
+
+                    if serializer.is_valid():
+                        serializer.save()
+                        return Response(serializer.data)
+                    return Response(serializer.errors)
+                else:
+                    return Response('you cannot do this action', status=403)
+
+            else:
+                return Response('you cannot do this action', status=403)
+
+        else:
+            return Response('you must sign in or register our platform.!', status=403)
+
+    except Offer.DoesNotExist:
+        return Response('Offer Not Found', status=404)
+
+
+# hali oxiriga yetmadi
+@api_view(['GET'])
+def close_contract(request, pk):
+    if request.user.is_authenticated:
+        if request.user.user_type == 'freelancer':
+            try:
+                contract = Contract.objects.get(pk=pk)
+                freelancer = contract.offer.freelancer.user
+
+                if request.user == freelancer:
+                    contract.offer.is_active = False
+                    contract.offer.save()
+
+                    proposal = contract.offer.proposals
+                    proposal.is_active = False
+                    proposal.save()
+
+                    contract.save()
+
+                    return Response("contract successfully closed .!")
+                else:
+                    return Response('you cannot do this action')
+            except Contract.DoesNotExist:
+                return Response('contract Not Found', status=404)
+
+        else:
+            return Response('you cannot do this action')
+
+    else:
+        return Response('you must sign in or register our platform.!', status=403)
