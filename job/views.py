@@ -412,23 +412,30 @@ def sign_contract(request, pk):
 # hali oxiriga yetmadi
 @api_view(['GET'])
 def close_contract(request, pk):
-    try:
-        if request.user.is_authenticated:
-            contract = Contract.objects.get(pk=pk)
-            user = contract.offer.proposals.freelancer.user
-            if request.user.user_type == 'freelancer' and user == request.user:
+    if request.user.is_authenticated:
+        if request.user.user_type == 'freelancer':
+            try:
+                contract = Contract.objects.get(pk=pk)
+                freelancer = contract.offer.freelancer.user
 
-                contract.offer.is_active = False
-                contract.offer.proposals.is_active = False
-                contract.save()
-                serializer = ContractSerializer(contract)
-                return Response(serializer.data)
+                if request.user == freelancer:
+                    contract.offer.is_active = False
+                    contract.offer.save()
 
-            else:
-                return Response('you cannot do this action', status=403)
+                    proposal = contract.offer.proposals
+                    proposal.is_active = False
+                    proposal.save()
+
+                    contract.save()
+
+                    return Response("contract successfully closed .!")
+                else:
+                    return Response('you cannot do this action')
+            except Contract.DoesNotExist:
+                return Response('contract Not Found', status=404)
 
         else:
-            return Response('you must sign in or register our platform.!', status=403)
+            return Response('you cannot do this action')
 
-    except Contract.DoesNotExist:
-        return Response('Contract Not Found', status=404)
+    else:
+        return Response('you must sign in or register our platform.!', status=403)
