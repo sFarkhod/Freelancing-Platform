@@ -8,7 +8,7 @@ from .models import Job, RequiredSkill, Proposal, Offer, Contract
 from .serializer import JobSerializer, SkillsSerializer, JobListSerializer, ProposalSerializer, \
     ProposalListSerializer, ProposalSerializerForPatchingClient, \
     ProposalSerializerForPatchingClientForClose, OfferSerializer, ContractSerializer, \
-    OfferSerializerForClose, ContractSerializerForFreelancer
+    OfferSerializerForClose, ContractSerializerForFreelancer, OfferSerializerForUpdate
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
@@ -181,7 +181,7 @@ def update_proposal(request, pk):
         else:
             return Response('please signup or signin')
 
-    except Proposal.DoesNoteExist:
+    except Proposal.DoesNotExist:
         return Response({"message": "Proposal Not Found"}, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -355,12 +355,44 @@ def accept_offer(request, pk):
 
                 if request.user == accept_user:
                     offer.is_active = True
+
                     offer.proposals.is_active = True
+                    offer.proposals.save()
 
                     offer.save()
                     return Response('offer was accepted.!', status=200)
                 else:
                     return Response('you cannot do this action', status=403)
+
+            else:
+                return Response('you cannot do this action', status=403)
+
+        else:
+            return Response('you must sign in or register our platform.!', status=403)
+
+    except Offer.DoesNotExist:
+        return Response('Offer Not Found', status=404)
+
+
+# offer update view for client
+@api_view(['PATCH'])
+def offer_update(request, pk):
+    try:
+        if request.user.is_authenticated:
+            if request.user.user_type == 'client':
+
+                client = Client.objects.get(user=request.user)
+
+                offer = Offer.objects.get(pk=pk, client=client)
+                proposals = offer.proposals
+                freelancer = offer.freelancer
+                contract = offer.contract
+
+                serializer = OfferSerializerForUpdate(offer, data=request.data)
+                if serializer.is_valid():
+                    serializer.save(client=client, proposals=proposals, freelancer=freelancer, contract=contract)
+                    return Response(serializer.data)
+                return Response(serializer.errors)
 
             else:
                 return Response('you cannot do this action', status=403)
@@ -439,3 +471,41 @@ def close_contract(request, pk):
 
     else:
         return Response('you must sign in or register our platform.!', status=403)
+
+
+# contract list for client
+
+class MyContractListApiViewForClient(APIView):
+
+    def get(self, request):
+        if request.user.is_authenticated:
+            try:
+                client = Client.objects.get(user=request.user)
+                contract = Contract.objects.filter(client=client)
+
+                if contract:
+                    serializer = ContractSerializer(contract, many=True)
+                    return Response(serializer.data)
+                return Response('you have not any contract.!', status=404)
+            except (Client.DoesNotExist, Contract.DoesNotExist):
+                return Response('Not Found ')
+        else:
+            return Response('please signup or login', status=401)
+
+
+class MyContractListApiViewForFreelancer(APIView):
+
+    def get(self, request):
+        if request.user.is_authenticated:
+            try:
+                freelancer = Freelancer.objects.get(user=request.user)
+                contract = Contract.objects.filter(freelancer=freelancer)
+
+                if contract:
+                    serializer = ContractSerializer(contract, many=True)
+                    return Response(serializer.data)
+                return Response('you have not any contract.!', status=404)
+            except (Client.DoesNotExist, Contract.DoesNotExist):
+                return Response('Not Found ')
+        else:
+            return Response('please signup or login', status=401)

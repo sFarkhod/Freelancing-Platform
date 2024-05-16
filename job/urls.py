@@ -3,7 +3,8 @@ from .views import add_job, get_job, JobListApiView, add_skill, SkillsListApiVie
     CreateProposalApiView, get_my_proposals, get_proposals_fordetail, delete_proposal, \
     update_proposal, patch_proposal_for_client_for_close_proposal, \
     create_offer, ContractListApiView, MyOfferListApiViewForClient, MyOfferListApiViewForFreelancer, \
-    close_offer, accept_offer, sign_contract, detail_proposal_for_client, close_contract
+    close_offer, accept_offer, sign_contract, detail_proposal_for_client, close_contract, offer_update, \
+    MyContractListApiViewForClient, MyContractListApiViewForFreelancer
 
 
 urlpatterns = [
@@ -28,6 +29,9 @@ urlpatterns = [
     path('accept_offer/<int:pk>/', accept_offer, ),
     path('sign_contract/<int:pk>/', sign_contract, ),
     path('close_contract/<int:pk>/', close_contract, ),
+    path('offer_update/<int:pk>/', offer_update, ),
+    path('contract_list_for_client/', MyContractListApiViewForClient.as_view(), ),
+    path('contract_list_for_freelancer/', MyContractListApiViewForFreelancer.as_view(), ),
 
 
 
