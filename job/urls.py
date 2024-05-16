@@ -4,7 +4,8 @@ from .views import add_job, get_job, JobListApiView, add_skill, SkillsListApiVie
     update_proposal, patch_proposal_for_client_for_close_proposal, \
     create_offer, ContractListApiView, MyOfferListApiViewForClient, MyOfferListApiViewForFreelancer, \
     close_offer, accept_offer, sign_contract, detail_proposal_for_client, close_contract, offer_update, \
-    MyContractListApiViewForClient, MyContractListApiViewForFreelancer
+    MyContractListApiViewForClient, MyContractListApiViewForFreelancer, MyContractListApiViewForFreelancerInArchive, \
+    MyContractListApiViewForClientInArchive, MyOfferListApiViewForFreelancerInArchive, MyOfferListApiViewForClientInArchive
 
 
 urlpatterns = [
@@ -32,6 +33,14 @@ urlpatterns = [
     path('offer_update/<int:pk>/', offer_update, ),
     path('contract_list_for_client/', MyContractListApiViewForClient.as_view(), ),
     path('contract_list_for_freelancer/', MyContractListApiViewForFreelancer.as_view(), ),
+    # for archive in contract
+    path('contract_list_for_freelancer_for_archive/', MyContractListApiViewForFreelancerInArchive.as_view(), ),
+    path('contract_list_for_client_for_archive/', MyContractListApiViewForClientInArchive.as_view(), ),
+    # for archive in offer
+    path('offer_list_for_freelancer_for_archive/', MyOfferListApiViewForFreelancerInArchive.as_view(), ),
+    path('offer_list_for_client_for_archive/', MyOfferListApiViewForClientInArchive.as_view(), ),
+
+
 
 
 
