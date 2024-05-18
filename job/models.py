@@ -71,6 +71,7 @@ class Offer(models.Model):
     is_active = models.BooleanField(default=True)
     upload_file = models.FileField(upload_to='documents/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_accept = models.BooleanField(default=False)
 
 
 class Contract(models.Model):

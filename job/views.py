@@ -413,9 +413,10 @@ def accept_offer(request, pk):
                 accept_user = offer.proposals.freelancer.user
 
                 if request.user == accept_user:
-                    offer.is_active = True
+                    offer.is_active = False
+                    offer.is_accept = True  # test qilinishi kerak
 
-                    offer.proposals.is_active = True
+                    offer.proposals.is_active = False
                     offer.proposals.save()
 
                     offer.save()
@@ -482,9 +483,12 @@ def sign_contract(request, pk):
 
                 if request.user == user:
                     serializer = ContractSerializerForFreelancer(contract, data=request.data)
-
                     if serializer.is_valid():
+                        contract.offer.is_accept = True
+                        contract.offer.is_active = False
+                        contract.offer.save()  # test qilib korish kerak
                         serializer.save()
+
                         return Response(serializer.data)
                     return Response(serializer.errors)
                 else:
