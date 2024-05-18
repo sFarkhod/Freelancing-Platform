@@ -9,7 +9,7 @@ from user.views import (CreateUserView, VerifyAPIView, GetNewVerification, Freel
 urlpatterns = [
     path('', index, name='index'),
     path('notification', NotificationAPIView.as_view()),
-    path('google/callback', GoogleCallbackAPIView.as_view()),
+    path('google/callback', GoogleCallbackAPIView.as_view(), name='google-callback'),
     path('google-login', GoogleLoginAPIView.as_view()),
     path('feedback', FeedbackAPIView.as_view()),
     path('clients', ClientListAPIView.as_view()),

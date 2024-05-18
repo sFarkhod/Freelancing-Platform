@@ -48,7 +48,7 @@ class GoogleLoginAPIView(APIView):
 
     def get(self, request, **kwargs):
         client_id = settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
-        google_redirect_url = "http://127.0.0.1:8000/user/google/callback"
+        google_redirect_url = f"{settings.GOOGLE_REDIRECT_URL}"
         return redirect(f"https://accounts.google.com/o/oauth2/auth?client_id={client_id}&redirect_uri={google_redirect_url}&response_type=code&scope=email%20profile")
 
 
@@ -57,8 +57,8 @@ class GoogleCallbackAPIView(APIView):
 
     def get(self, request, **kwargs):
         code = request.GET.get('code')
-        google_redirect_url = "http://127.0.0.1:8000/user/google/callback"
-        response = requests.post('https://oauth2.googleapis.com/token',
+        google_redirect_url = settings.GOOGLE_REDIRECT_URL
+        response = requests.post(settings.GOOGLE_ACCESS_TOKEN_OBTAIN_URL,
             data={
                 'client_id': settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY,
                 'client_secret': settings.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET,
@@ -70,7 +70,7 @@ class GoogleCallbackAPIView(APIView):
         )
         access_token = response.json().get('access_token')
         if access_token:
-            profile_endpoint = 'https://www.googleapis.com/oauth2/v1/userinfo'
+            profile_endpoint = settings.GOOGLE_USER_INFO_URL
             headers = {'Authorization': f'Bearer {access_token}'}
             profile_response = requests.get(profile_endpoint, headers=headers)
             if profile_response.status_code == 200:
@@ -82,7 +82,11 @@ class GoogleCallbackAPIView(APIView):
                     data['access'] = str(refresh.access_token)
                     data['refresh'] = str(refresh)
                     return Response(data, status.HTTP_201_CREATED)
-                user = User.objects.create(username=profile_data["email"].split("@")[0],last_name=profile_data["given_name"], email=profile_data["email"], first_name=profile_data["family_name"])
+                user = User.objects.create(
+                    username=profile_data["email"].split("@")[0],
+                    last_name=profile_data["given_name"],
+                    email=profile_data["email"],
+                    first_name=profile_data["family_name"])
                 refresh = RefreshToken.for_user(user)
                 data['access'] = str(refresh.access_token)
                 data['refresh'] = str(refresh)
