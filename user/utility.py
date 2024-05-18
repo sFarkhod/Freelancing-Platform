@@ -1,6 +1,7 @@
 import re
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
+from django.conf import settings
 
 
 email_regex = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b")
