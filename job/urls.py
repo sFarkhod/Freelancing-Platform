@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import add_job, get_job, JobListApiView, add_skill, SkillsListApiView, \
-    CreateProposalApiView, get_my_proposals, get_proposals_fordetail, delete_proposal, \
+    CreateProposalApiView, get_my_proposals, delete_proposal, \
     update_proposal, patch_proposal_for_client_for_close_proposal, \
     create_offer, ContractListApiView, MyOfferListApiViewForClient, MyOfferListApiViewForFreelancer, \
     close_offer, accept_offer, sign_contract, detail_proposal_for_client, close_contract, offer_update, \
@@ -16,7 +16,6 @@ urlpatterns = [
     path('get_skills/', SkillsListApiView.as_view(), ),
     path('create_proposal/', CreateProposalApiView.as_view(), ),
     path('proposal_list/', get_my_proposals, ),
-    path('proposal/<int:pk>/', get_proposals_fordetail, ),
     path('proposal_for_client/<int:pk>/', detail_proposal_for_client, ),
     path('delete_proposal/<int:pk>/', delete_proposal, ),
     path('update_proposal/<int:pk>/', update_proposal, ),

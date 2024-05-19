@@ -125,25 +125,6 @@ def get_my_proposals(request):
         Response({"error": "User is not authenticated.!"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-@api_view(['GET'])
-def get_proposals_fordetail(request, pk):
-    try:
-        if request.user.is_anonymous:
-            return Response('loging qiling shaxsingiz aniqlanmadi')
-
-        freelancer = Freelancer.objects.get(user=request.user)
-        proposal = Proposal.objects.get(pk=pk, freelancer=freelancer)
-        serializer = ProposalListSerializer(proposal)
-
-        return Response(serializer.data)
-
-    except Proposal.DoesNotExist:
-        return Response({"message": "Proposal Not Found.!"}, status=status.HTTP_404_NOT_FOUND)
-
-    except Freelancer.DoesNotExist:
-        return Response({"message": "You Cannot do this action.!"}, status=status.HTTP_404_NOT_FOUND)
-
-
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_proposal(request, pk):
