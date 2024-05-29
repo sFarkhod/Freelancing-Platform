@@ -1,10 +1,16 @@
 from django.urls import path
-from user.views import (CreateUserView, VerifyAPIView, GetNewVerification, FreelancerUdateAPIView, FreelancerListAPIView, ClientListAPIView,
-                        FreelancerDetailAPIView, ClientDetailAPIView, ClientUdateAPIView, LoginView, LoginRefreshView, LogoutView,
-                        ForgotPasswordView, ResetPasswordView, FeedbackAPIView)
+from user.views import (CreateUserView, VerifyAPIView, GetNewVerification, FreelancerListAPIView,
+                        ClientListAPIView,ClientUdateAPIView, FreelancerDetailAPIView, ClientDetailAPIView,
+                        LoginView, LoginRefreshView, LogoutView,FreelancerUdateAPIView, ForgotPasswordView,
+                        ResetPasswordView, FeedbackAPIView, GoogleLoginAPIView, GoogleCallbackAPIView,
+                        NotificationAPIView, index)
 
 
 urlpatterns = [
+    path('', index, name='index'),
+    path('notification', NotificationAPIView.as_view()),
+    path('google/callback', GoogleCallbackAPIView.as_view(), name='google-callback'),
+    path('google-login', GoogleLoginAPIView.as_view()),
     path('feedback', FeedbackAPIView.as_view()),
     path('clients', ClientListAPIView.as_view()),
     path('clients/<str:id>', ClientDetailAPIView.as_view()),

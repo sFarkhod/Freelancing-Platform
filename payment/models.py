@@ -1,5 +1,5 @@
 from django.db import models
-from user.models import Client, Freelancer
+from user.models import Client, Freelancer, User
 
 
 class Payment(models.Model):
@@ -15,12 +15,10 @@ class Payment(models.Model):
 
 
 class CreditCard(models.Model):
-    card_holder_name = models.CharField(max_length=255)
-    card_number = models.CharField(max_length=16)
-    card_expiration_date = models.CharField(max_length=5)
-
-    def __str__(self):
-        return self.card_holder_name
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='cards_user')
+    card_holder_name = models.CharField(max_length=255, null=True, blank=True)
+    card_number = models.CharField(max_length=16, null=True, blank=True)
+    card_expiration_date = models.CharField(max_length=5, null=True, blank=True)
 
     class Meta:
         db_table = 'credit_card'

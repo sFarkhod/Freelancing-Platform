@@ -6,6 +6,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 import uuid
 from django.contrib.auth.models import AbstractUser
 from datetime import datetime, timedelta
+from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 
 VIA_EMAIL, VIA_PHONE = ('via_email', 'via_phone')
@@ -65,7 +67,7 @@ class User(AbstractUser, BaseModel):
             "access" : str(refresh.access_token),
             "refresh": str(refresh)
         }
-
+    
 
 class UserConfirmation(BaseModel):
     TYPE_CHOICES = (
@@ -98,8 +100,6 @@ class Client(BaseModel):
     street1 = models.CharField(max_length=255, null=True, blank=True)
     street2 = models.CharField(max_length=255, null=True, blank=True)
     balance = models.CharField(max_length=255, null=True, blank=True)
-    # credit_card = models.ForeignKey('payment.Credit_Card', on_delete=models.DO_NOTHING)
-    job = models.ForeignKey('job.Job', null=True, blank=True, on_delete=models.DO_NOTHING)
 
 
 class Freelancer(BaseModel):
@@ -114,13 +114,42 @@ class Freelancer(BaseModel):
     street1 = models.CharField(max_length=255, null=True, blank=True)
     street2 = models.CharField(max_length=255, null=True, blank=True)
     balance = models.CharField(max_length=255, null=True, blank=True)
-    # credit_card = models.ForeignKey('payment.Credit_Card', on_delete=models.DO_NOTHING)
-    project = models.ForeignKey('job.Job', null=True, blank=True, on_delete=models.DO_NOTHING)
 
 
 class Feedback(BaseModel):
     comment = models.TextField(null=True, blank=True)
-    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.DO_NOTHING)
-    client = models.ForeignKey(Client, null=True, blank=True, on_delete=models.DO_NOTHING)
-    freelancer = models.ForeignKey(Freelancer, null=True, blank=True, on_delete=models.DO_NOTHING)
+    owner = models.ForeignKey(User, null=True, blank=True, related_name='feedback_owners', on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User, null=True, blank=True, related_name='feedback_users', on_delete=models.DO_NOTHING)
     stars_given = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+
+
+class Notification(BaseModel):
+    recipient = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.DO_NOTHING,
+        related_name='notifications',
+        verbose_name=_('recipient'),
+        blank=False,
+    )
+    title = models.CharField(max_length=255, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    is_read = models.BooleanField(default=False)
+
+
+
+class ChatRoom(BaseModel):
+    name = models.CharField(max_length=255, null=True, blank=True)
+    freelancer = models.ForeignKey("user.Freelancer", on_delete=models.DO_NOTHING)
+    client = models.ForeignKey("user.Client", on_delete=models.DO_NOTHING)
+
+
+class Message(BaseModel):
+    sender = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.DO_NOTHING
+    )
+    room = models.ForeignKey(
+        "user.ChatRoom",
+        on_delete=models.DO_NOTHING
+    )
+    content = models.CharField(max_length=255, null=True, blank=True)

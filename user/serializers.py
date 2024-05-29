@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from user.models import Client, Freelancer, User, Feedback, VIA_EMAIL, CODE_VERIFIED
+from user.models import Client, Freelancer, Notification, User, Feedback, VIA_EMAIL, CODE_VERIFIED
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.exceptions import ValidationError
 from user.utility import send_email, check_email_username_or_phone
@@ -9,6 +9,12 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework.generics import get_object_or_404
 from django.contrib.auth.models import update_last_login
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = '__all__'
 
 
 # job app uchun qo'shildi >>>>>>>
@@ -103,7 +109,7 @@ class FreelancerUpdateSerializer(serializers.ModelSerializer):
         fields = ('first_name','last_name', 'username', 'email', 'bio', 'country',
                     'city', 'street1', 'street2', 'balance', 'company', 'phone_number' )
     
-    
+
     def update(self, instance, validated_data):
         username = validated_data.pop('username', '')
         email = validated_data.pop('email', '')
@@ -253,7 +259,7 @@ class LoginSerializer(TokenObtainPairSerializer):
                 }
             )
         return users.first()
-    
+
 
 class LoginRefreshSerializer(TokenRefreshSerializer):
 
@@ -293,14 +299,13 @@ class ForgotPassswordSerializer(serializers.Serializer):
 
 
 class ResetPasswordSerializer(serializers.Serializer):
-    id = serializers.UUIDField(read_only = True)
     password = serializers.CharField(write_only=True, required = True)
     confirm_password = serializers.CharField(write_only=True, required = True)
 
     class Meta:
         model = User
         fields = (
-            "id", "password", "confirm_password"
+            "password", "confirm_password"
         )
 
     def validate(self, data):

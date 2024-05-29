@@ -4,7 +4,7 @@ from user.serializers import (SignUpSerializer, LoginSerializer, VerifyCodeSeria
                               LogoutSerializer, ForgotPassswordSerializer, ResetPasswordSerializer,
                               FreelancerSerializer, FreelancerUpdateSerializer,
                               ClientSerializer, ClientUpdateSerializer,
-                              FeedbackSerializer)  
+                              FeedbackSerializer, NotificationSerializer)  
 from user.models import CODE_VERIFIED, NEW, VIA_EMAIL, VIA_PHONE, User, Client, Freelancer, Feedback
 from rest_framework.views import APIView
 from datetime import datetime
@@ -17,10 +17,82 @@ from drf_yasg.utils import swagger_auto_schema
 from user.utility import check_email_username_or_phone, send_email
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+import requests
+from django.shortcuts import redirect
+from django.conf import settings
+from django.shortcuts import render
 
+
+def index(request):
+    return render(request, 'index.html')
+
+
+class NotificationAPIView(APIView):
+    permission_classes = [AllowAny, ]
+
+    @swagger_auto_schema(request_body=NotificationSerializer)
+    def post(self, request, *args, **kwargs):
+        serializer = NotificationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GoogleLoginAPIView(APIView):
+    permission_classes = [AllowAny, ]
+
+    def get(self, request, **kwargs):
+        client_id = settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
+        google_redirect_url = f"{settings.GOOGLE_REDIRECT_URL}"
+        return redirect(f"https://accounts.google.com/o/oauth2/auth?client_id={client_id}&redirect_uri={google_redirect_url}&response_type=code&scope=email%20profile")
+
+
+class GoogleCallbackAPIView(APIView):
+    permission_classes = [AllowAny, ]
+
+    def get(self, request, **kwargs):
+        code = request.GET.get('code')
+        google_redirect_url = settings.GOOGLE_REDIRECT_URL
+        response = requests.post(settings.GOOGLE_ACCESS_TOKEN_OBTAIN_URL,
+            data={
+                'client_id': settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY,
+                'client_secret': settings.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET,
+                'code': code,
+                'grant_type': 'authorization_code',
+                'redirect_uri': google_redirect_url
+            },
+            headers={'Accept': 'application/json'}
+        )
+        access_token = response.json().get('access_token')
+        if access_token:
+            profile_endpoint = settings.GOOGLE_USER_INFO_URL
+            headers = {'Authorization': f'Bearer {access_token}'}
+            profile_response = requests.get(profile_endpoint, headers=headers)
+            if profile_response.status_code == 200:
+                data = {}
+                profile_data = profile_response.json()
+                if User.objects.filter(email=profile_data["email"]).exists():
+                    user = User.objects.filter(email=profile_data["email"]).first()
+                    refresh = RefreshToken.for_user(user)
+                    data['access'] = str(refresh.access_token)
+                    data['refresh'] = str(refresh)
+                    return Response(data, status.HTTP_201_CREATED)
+                user = User.objects.create(
+                    username=profile_data["email"].split("@")[0],
+                    last_name=profile_data["given_name"],
+                    email=profile_data["email"],
+                    first_name=profile_data["family_name"])
+                refresh = RefreshToken.for_user(user)
+                data['access'] = str(refresh.access_token)
+                data['refresh'] = str(refresh)
+                return Response(data, status.HTTP_201_CREATED)
+        return Response({}, status.HTTP_400_BAD_REQUEST)
+        
 
 class FeedbackAPIView(APIView):
     permission_classes = [IsAuthenticated, ]
@@ -184,7 +256,6 @@ class ClientUdateAPIView(APIView):
             "success": False
         }
         return Response(data=data)
-
 
 
 class CreateUserView(CreateAPIView):
