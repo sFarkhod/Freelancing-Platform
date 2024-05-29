@@ -1,9 +1,11 @@
 from django.urls import path
 from .views import add_job, get_job, JobListApiView, add_skill, SkillsListApiView, \
-    CreateProposalApiView, get_my_proposals, get_proposals_fordetail, delete_proposal, \
+    CreateProposalApiView, get_my_proposals, delete_proposal, \
     update_proposal, patch_proposal_for_client_for_close_proposal, \
     create_offer, ContractListApiView, MyOfferListApiViewForClient, MyOfferListApiViewForFreelancer, \
-    close_offer, accept_offer, sign_contract, detail_proposal_for_client, close_contract
+    close_offer, accept_offer, sign_contract, detail_proposal_for_client, close_contract, offer_update, \
+    MyContractListApiViewForClient, MyContractListApiViewForFreelancer, MyContractListApiViewForFreelancerInArchive, \
+    MyContractListApiViewForClientInArchive, MyOfferListApiViewForFreelancerInArchive, MyOfferListApiViewForClientInArchive
 
 
 urlpatterns = [
@@ -14,7 +16,6 @@ urlpatterns = [
     path('get_skills/', SkillsListApiView.as_view(), ),
     path('create_proposal/', CreateProposalApiView.as_view(), ),
     path('proposal_list/', get_my_proposals, ),
-    path('proposal/<int:pk>/', get_proposals_fordetail, ),
     path('proposal_for_client/<int:pk>/', detail_proposal_for_client, ),
     path('delete_proposal/<int:pk>/', delete_proposal, ),
     path('update_proposal/<int:pk>/', update_proposal, ),
@@ -28,6 +29,17 @@ urlpatterns = [
     path('accept_offer/<int:pk>/', accept_offer, ),
     path('sign_contract/<int:pk>/', sign_contract, ),
     path('close_contract/<int:pk>/', close_contract, ),
+    path('offer_update/<int:pk>/', offer_update, ),
+    path('contract_list_for_client/', MyContractListApiViewForClient.as_view(), ),
+    path('contract_list_for_freelancer/', MyContractListApiViewForFreelancer.as_view(), ),
+    # for archive in contract
+    path('contract_list_for_freelancer_for_archive/', MyContractListApiViewForFreelancerInArchive.as_view(), ),
+    path('contract_list_for_client_for_archive/', MyContractListApiViewForClientInArchive.as_view(), ),
+    # for archive in offer
+    path('offer_list_for_freelancer_for_archive/', MyOfferListApiViewForFreelancerInArchive.as_view(), ),
+    path('offer_list_for_client_for_archive/', MyOfferListApiViewForClientInArchive.as_view(), ),
+
+
 
 
 

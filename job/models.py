@@ -71,6 +71,7 @@ class Offer(models.Model):
     is_active = models.BooleanField(default=True)
     upload_file = models.FileField(upload_to='documents/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_accept = models.BooleanField(default=False)
 
 
 class Contract(models.Model):
@@ -80,6 +81,8 @@ class Contract(models.Model):
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.CharField(max_length=20, blank=True, null=True)
     sign_img = models.ImageField(upload_to='images/', blank=True, null=True)
+    client = models.ForeignKey(Client, on_delete=models.DO_NOTHING, blank=True, null=True)
+    freelancer = models.ForeignKey(Freelancer, on_delete=models.DO_NOTHING, blank=True, null=True)
 
 
 contract_choice = 'add_contract'
@@ -91,13 +94,17 @@ def create_contract_on_offer_save(sender, instance, created, **kwargs):
         if instance.upload_file:
             Contract.objects.create(
                 offer=instance,
-                file_path=instance.upload_file
+                file_path=instance.upload_file,
+                client=instance.client,
+                freelancer=instance.freelancer
             )
         else:
             Contract.objects.create(
                 offer=instance,
                 contract_text=instance.proposals.job.description,
                 start_date=instance.created_at,
-                end_date=instance.project_lengs
+                end_date=instance.project_lengs,
+                client=instance.client,
+                freelancer=instance.freelancer
 
             )
