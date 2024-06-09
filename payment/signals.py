@@ -7,4 +7,9 @@ from .models import CreditCard
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_credit_card_for_new_user(sender, instance, created, **kwargs):
     if created:
-        CreditCard.objects.create(credit_card_user=instance)
+        CreditCard.objects.create(
+            credit_card_user=instance,
+            card_holder_name=None,
+            card_number=None,
+            card_expiration_date=None
+        )

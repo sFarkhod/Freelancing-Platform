@@ -38,9 +38,6 @@ class CreditCard(models.Model):
         null=True
     )
 
-    def __str__(self):
-        return self.card_holder_name
-
     class Meta:
         db_table = 'credit_card'
         verbose_name = 'Credit Card'
