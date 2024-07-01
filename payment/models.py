@@ -1,5 +1,6 @@
 from django.core.validators import RegexValidator
 from django.db import models
+from config import settings
 
 
 class Payment(models.Model):
@@ -17,6 +18,21 @@ class Payment(models.Model):
         db_table = 'payment'
         verbose_name = 'Payment'
         verbose_name_plural = 'Payments'
+        
+
+
+class StripeCustomer(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    stripe_customer_id = models.CharField(max_length=255)
+    
+    def __str__(self) -> str:
+        return self.user.username
+    
+
+    class Meta:
+        db_table = 'stripe_customer'
+        verbose_name = 'StripeCustomer'
+        verbose_name_plural = 'StripeCustomer'
 
 
 class CreditCard(models.Model):
